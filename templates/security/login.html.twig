@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Login | {{ site.title }}{% endblock %}
+{% block head_meta %}
+    <style>
+        .form-signin {
+            max-width: 330px;
+            padding: 1rem;
+        }
+
+        .form-signin .form-floating:focus-within {
+            z-index: 2;
+        }
+
+        .form-signin input[type="text"] {
+            margin-bottom: -1px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .form-signin input[type="password"] {
+            margin-bottom: 10px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+        .form-signin .form-check label {
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container d-flex align-items-center">
+        <main class="form-signin w-100 m-auto">
+            <form method="post">
+                <input type="hidden" name="_csrf_token"
+                       value="{{ csrf_token('authenticate') }}"
+                >
+                {% if error %}
+                    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
+
+                {% if app.user %}
+                    <div class="mb-3">
+                        You are logged in as {{ app.user.userIdentifier }}, <a
+                                href="{{ path('app_logout') }}">Logout</a>
+                    </div>
+                {% endif %}
+
+                <h1 class="h3 mb-3 font-weight-normal">Login</h1>
+
+                <div class="form-floating">
+                    <input type="text" class="form-control" value="{{ last_username }}" name="_username"
+                           id="username" placeholder="Username">
+                    <label for="username">Username</label>
+                </div>
+
+                <div class="form-floating">
+                    <input type="password" class="form-control" name="_password" id="password"
+                           placeholder="Password">
+                    <label for="password">Password</label>
+                </div>
+
+                <div class="form-check text-start my-3">
+                    <input class="form-check-input" type="checkbox" value="1" name="_remember_me"
+                           id="_remember_me">
+                    <label class="form-check-label" for="_remember_me" id="_remember_me-label">
+                        Remember me
+                    </label>
+                </div>
+
+                <button class="btn btn-primary w-100 py-2" type="submit">Login</button>
+            </form>
+            <script>
+                (d => g('#_remember_me-label').addEventListener('click', () => g('_remember_me').click()))(document.getElementById);
+            </script>
+        </main>
+    </div>
+{% endblock %}

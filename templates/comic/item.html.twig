@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ comic.title }} | {{ site.title }}{% endblock %}
+{% block head_meta %}
+    <meta property="og:site_name" content="{{ site.title }}">
+    <meta property="og:title" content="{{ comic.title }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:image" content="{{ comic_meta.image }}">
+    <meta property="og:description" content="{{ content }}">
+    <meta property="article:author" content="{{ comic_meta.author[0].url }}">
+    <script type="application/ld+json">{{ comic_meta|json_encode }}</script>
+{% endblock %}
+
+{% block body %}
+    <div class="container comic">
+        <div class="row">
+            {{ block('comic_pagination') }}
+            <div class="col col-sm-6 text-right d-none d-sm-block"><h1 name="comic">{{ comic.title }}</h1></div>
+        </div>
+        <div class="row">
+            {% for panel in panels %}
+                <img src="{{ panel.path }}" alt="{{ panel.alt }}"/>
+            {% endfor %}
+        </div>
+        <div class="row">
+            {{ block('comic_pagination') }}
+        </div>
+        {% if content %}
+            <div class="row">
+                {{ content|raw }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block comic_pagination %}
+    <div class="col col-xs-12 col-sm-6">
+        <nav>
+            <ul class="pagination ">
+                {% if previous_comic %}
+                    <li class="page-item"><a class="page-link"
+                                             href="{{ path('comic', {id: header_navigation.first}) }}#comic"><span
+                                    class="d-none d-sm-block">First</span><span
+                                    class="d-block d-sm-none">&laquo;&laquo;</span></a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="{{ path('comic', {id: previous_comic} ) }}#comic"><span
+                                    class="d-none d-sm-block">Previous</span><span
+                                    class="d-block d-sm-none">&laquo;</span></a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="javascript:void(0);"><span
+                                    class="d-none d-sm-block">First</span><span
+                                    class="d-block d-sm-none">&laquo;&laquo;</span></a></li>
+                    <li class="page-item disabled"><a class="page-link" href="javascript:void(0);"><span
+                                    class="d-none d-sm-block">Previous</span><span
+                                    class="d-block d-sm-none">&laquo;</span></a></li>
+                {% endif %}
+                {% if next_comic %}
+                    <li class="page-item"><a class="page-link" href="{{ path('comic', {id: next_comic}) }}#comic"><span
+                                    class="d-none d-sm-block">Next</span><span class="d-block d-sm-none">&raquo;</span></a>
+                    </li>
+                    <li class="page-item"><a class="page-link"
+                                             href="{{ path('comic', {id: header_navigation.current}) }}#comic"><span
+                                    class="d-none d-sm-block">Current</span><span
+                                    class="d-block d-sm-none">&raquo;&raquo;</span></a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="javascript:void(0);"><span
+                                    class="d-none d-sm-block">Next</span><span
+                                    class="d-block d-sm-none">&raquo;</span></a></li>
+                    <li class="page-item disabled"><a class="page-link" href="javascript:void(0);"><span
+                                    class="d-none d-sm-block">Current</span><span
+                                    class="d-block d-sm-none">&raquo;&raquo;</span></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endblock %}
