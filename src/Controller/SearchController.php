@@ -6,7 +6,6 @@ use App\Entity\Search;
 use App\Repository\SearchRepository;
 use App\Service\MetaData;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -14,9 +13,9 @@ use Symfony\Component\Routing\Attribute\Route;
 class SearchController extends AbstractController
 {
     #[Route('/search', name: 'search', methods: ['GET'])]
-    public function search(Request $request, SearchRepository $repository, HtmlSanitizerInterface $sanitizer): Response
+    public function search(Request $request, SearchRepository $repository): Response
     {
-        $search = $sanitizer->sanitize($request->query->get('q'));
+        $search = strip_tags($request->query->get('q'));
         if (!$search) {
             return $this->redirectToRoute('index');
         }

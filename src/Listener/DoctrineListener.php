@@ -9,13 +9,16 @@ use App\Entity\Search;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
+use Michelf\Markdown;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[AsDoctrineListener(event: Events::onFlush)]
-class DoctrineListener
+readonly class DoctrineListener
 {
-    public function __construct(private readonly TagAwareCacheInterface $cache)
+    public function __construct(
+        private TagAwareCacheInterface $cache
+    )
     {
 
     }
@@ -43,12 +46,21 @@ class DoctrineListener
         }
 
         foreach ($comics as $comic) {
+            $comicContent = $comic->getContent();
+            if ($comicContent && !$comic->isRaw()) {
+                $comicContent = Markdown::defaultTransform($comicContent);
+            }
             $content = [
                 $comic->getTitle(),
-                $comic->getAuthor()->getUsername()
+                $comicContent,
+                $comic->getAuthor()->getUsername(),
+                $comic->getDescription(),
             ];
+
             foreach ($comic->getPanels() as $panel) {
+                $content[] = $panel->getDialogue();
                 $content[] = $panel->getAlt();
+                $content[] = $panel->getTitle();
             }
 
             $hidden = $comic->getHidden();
@@ -58,9 +70,24 @@ class DoctrineListener
 
             $search = $comic->getSearch() ?? new Search;
             $search->setComic($comic);
-            $search->setContent(implode(' ', $content));
+            $search->setContent(
+                strtolower(
+                    preg_replace('/[^A-Za-z0-9 ]/', '',
+                        preg_replace('/[\t\r\n ]+/', ' ',
+                            strip_tags(
+                                implode(' ', array_filter($content, function ($item) {
+                                        return is_string($item) && $item;
+                                    })
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+
             $comic->setSearch($search);
             $manager->persist($comic);
+
             $unitOfWork->computeChangeSet($manager->getClassMetadata(Comic::class), $comic);
             $unitOfWork->computeChangeSet($manager->getClassMetadata(Search::class), $search);
         }

@@ -34,3 +34,8 @@ services:
     class: App\Admin\PanelAdmin
     tags:
       - { name: sonata.admin, model_class: App\Entity\Panel, manager_type: orm, label: Panel }
+
+  admin.search:
+    class: App\Admin\SearchAdmin
+    tags:
+      - { name: sonata.admin, model_class: App\Entity\Search, manager_type: orm, label: Search }

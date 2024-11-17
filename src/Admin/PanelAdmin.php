@@ -10,6 +10,7 @@ use Sonata\AdminBundle\Form\FormMapper;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class PanelAdmin extends AbstractAdmin
@@ -29,12 +30,13 @@ class PanelAdmin extends AbstractAdmin
             ->with('Content', ['class' => 'col-md-9'])
             ->add('file', FileType::class, $fileOptions)
             ->add('alt', TextType::class, ['required' => false])
+            ->add('dialogue', TextareaType::class, ['required' => false, 'attr' => ['rows' => 10]])
             ->end()
             ->with('Meta', ['class' => 'col-md-3'])
             ->add('comic', EntityType::class, ['class' => Comic::class])
             ->add('sort', NumberType::class)
             ->end()
-        ->end();
+            ->end();
     }
 
     protected function configureListFields(ListMapper $list): void

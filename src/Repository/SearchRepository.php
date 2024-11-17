@@ -17,13 +17,12 @@ class SearchRepository extends ServiceEntityRepository
         parent::__construct($registry, Search::class);
     }
 
-
     public function findByQuery(string $get): Paginator
     {
         return new Paginator(
             $this->createQueryBuilder('c')
                 ->andWhere('c.content LIKE :get')
-                ->setParameter('get', implode('', ['%', $get, '%'])),
+                ->setParameter('get', implode('', ['%', strtolower($get), '%'])),
             fetchJoinCollection: true
         );
     }

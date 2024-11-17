@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PanelRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -31,6 +32,9 @@ class Panel
 
     #[ORM\Column]
     private ?int $sort = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $dialogue = null;
 
     public function getId(): ?int
     {
@@ -135,6 +139,18 @@ class Panel
     public function __toString(): string
     {
         return $this->getTitle();
+    }
+
+    public function getDialogue(): ?string
+    {
+        return $this->dialogue;
+    }
+
+    public function setDialogue(?string $dialogue): static
+    {
+        $this->dialogue = $dialogue;
+
+        return $this;
     }
 
 }

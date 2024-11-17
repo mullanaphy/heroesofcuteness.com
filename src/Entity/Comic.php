@@ -53,6 +53,9 @@ class Comic
     #[ORM\Column(nullable: true)]
     private ?bool $raw = null;
 
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $description = null;
+
     public function __construct()
     {
         $this->panels = new ArrayCollection();
@@ -206,5 +209,17 @@ class Comic
     public function __toString(): string
     {
         return $this->title ?? 'Untitled Comic';
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
     }
 }
