@@ -31,6 +31,14 @@
         <div class="row mt-2">
             {{ block('archive_pagination') }}
         </div>
+        <div class="row mt-3 d-block d-md-none">
+            <form class="input-group right" role="search" aria-label="Search" method="GET"
+                  action="{{ path('search') }}">
+                <input type="text" class="form-control w-50" name="q" placeholder="Search" aria-label="Search"
+                       {% if page.parameters and page.parameters.q %}value="{{ page.parameters.q }}"{% endif %}>
+                <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
+            </form>
+        </div>
     </div>
 {% endblock %}
 
@@ -58,10 +66,13 @@
                 <button type="button" class="btn btn-warning disabled">&raquo;</button>
             {% endif %}
         </div>
-        <form class="input-group right" role="search" aria-label="Search" method="GET" action="{{ path('search') }}">
-            <input type="text" class="form-control" name="q" placeholder="Search" aria-label="Search"
-                   {% if page.parameters and page.parameters.q %}value="{{ page.parameters.q }}"{% endif %}>
-            <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
-        </form>
+        <div class="d-none d-md-inline">
+            <form class="input-group right" role="search" aria-label="Search" method="GET"
+                  action="{{ path('search') }}">
+                <input type="text" class="form-control" name="q" placeholder="Search" aria-label="Search"
+                       {% if page.parameters and page.parameters.q %}value="{{ page.parameters.q }}"{% endif %}>
+                <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
+            </form>
+        </div>
     </div>
 {% endblock %}
