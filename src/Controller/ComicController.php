@@ -83,8 +83,8 @@ class ComicController extends AbstractController
                     'name' => 'Heroes of Cuteness',
                 ],
                 'image' => $metaImage,
-                'datePublished' => $comic->getCreated(),
-                'dateModified' => $comic->getUpdated()
+                'datePublished' => $comic->getCreated()->format('Y-m-d\TH:i:s\Z'),
+                'dateModified' => $comic->getUpdated()->format('Y-m-d\TH:i:s\Z')
             ];
 
             $nextComic = $repository->findNextComic($comic);
