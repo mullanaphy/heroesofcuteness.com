@@ -34,7 +34,7 @@ class ComicController extends AbstractController
     }
 
     #[Route('/comic/{id}', name: 'comic')]
-    public function item(int $id, ComicRepository $repository): Response
+    public function item(int $id, Request $request, ComicRepository $repository): Response
     {
         try {
             /* @var Comic $comic */
@@ -45,7 +45,7 @@ class ComicController extends AbstractController
             foreach ($comic->getPanels() as $panel) {
                 /* @var Panel $panel */
                 if ($metaImage === null) {
-                    $metaImage = $panel->getPath();
+                    $metaImage = $request->getSchemeAndHttpHost() . $panel->getPath();
                 }
                 $panels[] = $panel->toArray();
             }

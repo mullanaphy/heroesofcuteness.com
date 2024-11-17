@@ -9,6 +9,7 @@
     <meta property="og:image" content="{{ comic_meta.image }}">
     <meta property="og:description" content="{{ comic.description }}">
     <meta property="article:author" content="{{ comic_meta.author[0].url }}">
+    <meta name="description" content="{{ comic.description }}">
     <script type="application/ld+json">{{ comic_meta|json_encode|raw }}</script>
 {% endblock %}
 
