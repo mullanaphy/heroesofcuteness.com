@@ -19,7 +19,7 @@
                         {% endif %}
                         <div class="card-body">
                             <h5 class="card-title">{{ comic.title }}</h5>
-                            <p class="card-text">{{ comic.content|striptags|u.truncate(20, '...', false) }}</p>
+                            <p class="card-text">{{ comic.description|striptags|u.truncate(128, '...', false) }}</p>
                             <a href="#" class="btn btn-sm btn-warning">Read</a>
                         </div>
                     </div>

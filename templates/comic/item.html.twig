@@ -7,7 +7,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ canonical_url }}">
     <meta property="og:image" content="{{ comic_meta.image }}">
-    <meta property="og:description" content="{{ content }}">
+    <meta property="og:description" content="{{ comic.description }}">
     <meta property="article:author" content="{{ comic_meta.author[0].url }}">
     <script type="application/ld+json">{{ comic_meta|json_encode }}</script>
 {% endblock %}
