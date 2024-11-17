@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 #[ORM\Entity(repositoryClass: PanelRepository::class)]
 class Panel
 {
-    const UPLOAD_DIRECTORY = 'upload/';
+    const UPLOAD_DIRECTORY = 'media/';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
