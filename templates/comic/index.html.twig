@@ -20,7 +20,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ comic.title }}</h5>
                             <p class="card-text">{{ comic.description|striptags|u.truncate(128, '...', false) }}</p>
-                            <a href="#" class="btn btn-sm btn-warning">Read</a>
+                            <a href="{{ path('comic', {id: comic.id}) }}" class="btn btn-sm btn-warning">Read</a>
                         </div>
                     </div>
                 </div>
