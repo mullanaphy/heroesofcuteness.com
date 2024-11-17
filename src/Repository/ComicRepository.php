@@ -39,22 +39,11 @@ class ComicRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findByRange(int $start, int $end): Paginator
+    public function all(): Paginator
     {
         return new Paginator(
             $this->createQueryBuilder('c')
-                ->orderBy('c.id', 'ASC')
-                ->setFirstResult($start)
-                ->setMaxResults($end),
-            fetchJoinCollection: true
-        );
-    }
-
-    public function search(string $get, int $page = 1): Paginator
-    {
-        return new Paginator(
-            $this->createQueryBuilder('c')
-            ->andWhere('c.title LIKE :get'),
+                ->orderBy('c.id', 'ASC'),
             fetchJoinCollection: true
         );
     }

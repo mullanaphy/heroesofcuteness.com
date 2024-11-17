@@ -5,7 +5,7 @@ $offcanvas-box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175);
 $body-bg: #eee;
 $border-radius: .4rem;
 $success: #7952b3;
-$enable-gradients: false;
+$enable-gradients: true;
 
 // Include functions first
 @import "../../vendor/twbs/bootstrap/scss/functions";
@@ -19,6 +19,7 @@ $enable-gradients: false;
 @import "../../vendor/twbs/bootstrap/scss/root";
 @import "../../vendor/twbs/bootstrap/scss/reboot";
 @import "../../vendor/twbs/bootstrap/scss/type";
+@import "../../vendor/twbs/bootstrap/scss/card";
 @import "../../vendor/twbs/bootstrap/scss/images";
 @import "../../vendor/twbs/bootstrap/scss/containers";
 @import "../../vendor/twbs/bootstrap/scss/grid";
@@ -76,19 +77,6 @@ hr {
   font-weight: bold;
 }
 
-.comic > .row {
-  margin-top: 1em;
-}
-
-.comic .pagination, .comic h1 {
-  margin-bottom: 0;
-}
-
-.comic h1 {
-  font-size: 2rem;
-  text-align: right;
-}
-
 .logo img {
   width: 100% !important;
 }
@@ -105,10 +93,6 @@ a:hover,.nav-link.nav-link:hover {
   background: var(--bs-form-valid-color);
   border-color: #997404;
   color: #212529;
-}
-
-.nav-link.nav-link:last-of-type {
-  margin-right: -1em;
 }
 
 .page-item a {

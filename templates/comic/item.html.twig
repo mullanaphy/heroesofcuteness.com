@@ -14,20 +14,20 @@
 
 {% block body %}
     <div class="container comic">
-        <div class="row">
+        <div class="row mt-3">
             {{ block('comic_pagination') }}
-            <div class="col col-sm-6 text-right d-none d-sm-block"><h1 name="comic">{{ comic.title }}</h1></div>
         </div>
-        <div class="row">
+        <div class="row mt-3">
             {% for panel in panels %}
-                <img src="{{ panel.path }}" alt="{{ panel.alt }}"/>
+                <img name="comic" src="{{ panel.path }}" alt="{{ panel.alt }}"/>
             {% endfor %}
         </div>
-        <div class="row">
+        <div class="row mt-3">
             {{ block('comic_pagination') }}
         </div>
         {% if content %}
-            <div class="row">
+            <div class="row mt-3">
+                <h1>{{ comic.title }}</h1>
                 {{ content|raw }}
             </div>
         {% endif %}
@@ -35,44 +35,51 @@
 {% endblock %}
 
 {% block comic_pagination %}
-    <div class="col col-xs-12 col-sm-6">
-        <nav>
-            <ul class="pagination ">
-                {% if previous_comic %}
-                    <li class="page-item"><a class="page-link"
-                                             href="{{ path('comic', {id: header_navigation.first}) }}#comic"><span
-                                    class="d-none d-sm-block">First</span><span
-                                    class="d-block d-sm-none">&laquo;&laquo;</span></a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="{{ path('comic', {id: previous_comic} ) }}#comic"><span
-                                    class="d-none d-sm-block">Previous</span><span
-                                    class="d-block d-sm-none">&laquo;</span></a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled"><a class="page-link" href="javascript:void(0);"><span
-                                    class="d-none d-sm-block">First</span><span
-                                    class="d-block d-sm-none">&laquo;&laquo;</span></a></li>
-                    <li class="page-item disabled"><a class="page-link" href="javascript:void(0);"><span
-                                    class="d-none d-sm-block">Previous</span><span
-                                    class="d-block d-sm-none">&laquo;</span></a></li>
-                {% endif %}
-                {% if next_comic %}
-                    <li class="page-item"><a class="page-link" href="{{ path('comic', {id: next_comic}) }}#comic"><span
-                                    class="d-none d-sm-block">Next</span><span class="d-block d-sm-none">&raquo;</span></a>
-                    </li>
-                    <li class="page-item"><a class="page-link"
-                                             href="{{ path('comic', {id: header_navigation.current}) }}#comic"><span
-                                    class="d-none d-sm-block">Current</span><span
-                                    class="d-block d-sm-none">&raquo;&raquo;</span></a></li>
-                {% else %}
-                    <li class="page-item disabled"><a class="page-link" href="javascript:void(0);"><span
-                                    class="d-none d-sm-block">Next</span><span
-                                    class="d-block d-sm-none">&raquo;</span></a></li>
-                    <li class="page-item disabled"><a class="page-link" href="javascript:void(0);"><span
-                                    class="d-none d-sm-block">Current</span><span
-                                    class="d-block d-sm-none">&raquo;&raquo;</span></a></li>
-                {% endif %}
-            </ul>
-        </nav>
+    <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Pagination and search">
+        <div class="btn-group" role="pagination" aria-label="Pagination">
+            {% if (previous_comic) %}
+                <a type="button" class="btn btn-warning"
+                   href="{{ path('comic', {id: header_navigation.first}) }}">
+                    <span class="d-none d-md-inline">First</span>
+                    <span class="d-inline d-md-none">&laquo;&laquo;</span>
+                </a>
+                <a type="button" class="btn btn-warning" href="{{ path('comic', {id: previous_comic}) }}">
+                    <span class="d-none d-md-inline">Previous</span>
+                    <span class="d-inline d-md-none">&laquo;</span>
+                </a>
+            {% else %}
+                <button type="button" class="btn btn-warning disabled">
+                    <span class="d-none d-md-inline">First</span>
+                    <span class="d-inline d-md-none">&laquo;&laquo;</span>
+                </button>
+                <button type="button" class="btn btn-warning disabled">
+                    <span class="d-none d-md-inline">Previous</span>
+                    <span class="d-inline d-md-none">&laquo;</span>
+                </button>
+            {% endif %}
+            {% if next_comic %}
+                <a type="button" class="btn btn-warning" href="{{ path('comic', {id: next_comic}) }}">
+                    <span class="d-none d-md-inline">Next</span>
+                    <span class="d-inline d-md-none">&raquo;</span>
+                </a>
+                <a type="button" class="btn btn-warning" href="{{ path('comic', {id: header_navigation.current}) }}">
+                    <span class="d-none d-md-inline">Current</span>
+                    <span class="d-inline d-md-none">&raquo;&raquo;</span>
+                </a>
+            {% else %}
+                <button type="button" class="btn btn-warning disabled">
+                    <span class="d-none d-md-inline">Next</span>
+                    <span class="d-inline d-md-none">&raquo;</span>
+                </button>
+                <button type="button" class="btn btn-warning disabled">
+                    <span class="d-none d-md-inline">Current</span>
+                    <span class="d-inline d-md-none">&raquo;&raquo;</span>
+                </button>
+            {% endif %}
+        </div>
+        <form class="input-group right" role="search" aria-label="Search" method="GET" action="{{ path('search') }}">
+            <input type="text" class="form-control" name="q" placeholder="Search" aria-label="Search">
+            <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
+        </form>
     </div>
 {% endblock %}

@@ -14,38 +14,35 @@
     {% endblock %}
 </head>
 <body>
-<div class="container">
-    <div class="logo">
-        <a href="{{ path('index') }}"><img alt="Heroes of Cuteness!" src="/assets/img/logo.jpg"
-                                             class="img-fluid"/></a>
+<div class="container shadow-lg">
+    <div class="logo position-relative">
+        <div class="position-absolute bottom-0 start-0 p-1">
+            <a class="btn btn-sm btn-success" href="https://herosofcuteness.bsky.social">
+                <span class="bi bi-twitter"></span>
+                <span class="d-none d-lg-inline"> Bluesky</span></a>
+            <a class="btn btn-sm btn-success" href="https://instagram.com/heroesofcuteness">
+                <span class="bi bi-instagram"></span>
+                <span class="d-none d-lg-inline"> Instagram</span></a>
+            <a class="btn btn-sm btn-success" href="https://threads.net/@heroesofcuteness">
+                <span class="bi bi-threads"></span>
+                <span class="d-none d-lg-inline"> Threads</span></a>
+            <a class="btn btn-sm btn-success" href="https://github.com/mullanaphy/heroes">
+                <span class="bi bi-github"></span>
+                <span class="d-none d-lg-inline"> Source Code</span></a>
+        </div>
+        <a href="{{ path('index') }}">
+            <img alt="Heroes of Cuteness!" src="/assets/img/logo.jpg" class="img-fluid">
+        </a>
     </div>
 </div>
 {% block body %}
 {% endblock %}
 {% block footer %}
-    <div class="container">
-        <hr>
-        <div class="row align-items-center">
-            <div class="col-md-5">&copy; <a href="https://initials.kim">Keira</a> &amp; <a
-                        href="https://john.mu">John</a> 2024<span
-                        class="hidden-xs">, <em>All Rights Reserved</em></span>.
-            </div>
-            <div class="col-md-7 ms-auto">
-                <ul class="nav justify-content-end">
-                    <li class="nav-item"><a class="nav-link" href="https://herosofcuteness.bsky.social"><span
-                                    class="bi bi-twitter"></span><span
-                                    class="hidden-xs"> Facebook</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="https://instagram.com/heroesofcuteness"><span
-                                    class="bi bi-instagram"></span><span
-                                    class="hidden-xs"> Instagram</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="https://threads.net/@heroesofcuteness"><span
-                                    class="bi bi-threads"></span><span
-                                    class="hidden-xs"> Threads</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="https://github.com/mullanaphy/heroes"><span
-                                    class="bi bi-github"></span><span
-                                    class="hidden-xs"> Source Code</span></a></li>
-                </ul>
-            </div>
+    <div class="container mt-3">
+        <div class="row">
+            <hr>
+            <p>By <a href="https://initials.kim">Keira</a> &amp; <a
+                        href="https://john.mu">John</a> | &copy; 2024 All Rights Reserved</p>
         </div>
     </div>
 {% endblock %}
