@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ComicController extends AbstractController
 {
@@ -57,7 +58,7 @@ class ComicController extends AbstractController
                 }
             }
 
-            $canonicalUrl = $this->generateUrl('comic', ['id' => $comic->getId()]);
+            $canonicalUrl = $this->generateUrl('comic', ['id' => $comic->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
             $meta = [
                 '@context' => 'http://schema.org',
                 '@type' => 'Article',
