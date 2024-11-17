@@ -43,10 +43,10 @@ class ComicController extends AbstractController
             $metaImage = null;
             $panels = [];
             foreach ($comic->getPanels() as $panel) {
-                if ($metaImage === null) {
-                    $metaImage = $panel->getSource();
-                }
                 /* @var Panel $panel */
+                if ($metaImage === null) {
+                    $metaImage = $panel->getPath();
+                }
                 $panels[] = $panel->toArray();
             }
 
