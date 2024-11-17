@@ -94,7 +94,9 @@
     "build-assets": [
       "rm -rf assets/css/app.css",
       "rm -rf public/assets/*",
-      "mkdir -p public/assets/{js,css,img}",
+      "mkdir -p public/assets/js",
+      "mkdir -p public/assets/css",
+      "mkdir -p public/assets/img",
       "cp -r assets/img public/assets/",
       "cp vendor/twbs/bootstrap/dist/js/bootstrap.min.js public/assets/js/bootstrap.min.js",
       "cp vendor/twbs/bootstrap/dist/js/bootstrap.min.js.map public/assets/js/bootstrap.min.js.map",
