@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ character.name }} | {{ site.title }}{% endblock %}
+{% block head_meta %}
+    <meta property="og:site_name" content="{{ site.title }}">
+    <meta property="og:title" content="{{ character.name }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:image" content="{{ meta.image }}">
+    <meta property="og:description" content="{{ character.biography|u.truncate(128, '...', false) }}">
+    <meta property="article:author" content="{{ meta.author[0].url }}">
+    <meta name="description" content="{{ character.biography|u.truncate(128, '...', false) }}">
+    <script type="application/ld+json">{{ meta|json_encode|raw }}</script>
+{% endblock %}
+
+{% block body %}
+    <div class="container comic">
+        <div class="row mt-3">
+            <div class="col-xs-12 col-sm-12 col-md-2">
+                <img src="{{ character.path }}" class="img-fluid" alt="{{ character.name }}">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-4">
+                <h1>{{ character.name }}</h1>
+                {% if character.nickname %}<h2><em>{{ character.nickname }}</em></h2>{% endif %}
+                {{ character.biography|raw }}
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6">
+                <div class="row">
+                    <h2>Featured in:</h2>
+                </div>
+                <div class="row">
+                    {% for comic in character.featuredIn %}
+                        {% set panel = comic.panels[0] %}
+                        <div class="col-6">
+                            <div class="card">
+                                {% if panel.path %}
+                                    <a href="{{ path('comic_item', {id: comic.id}) }}"
+                                       style="background: url({{ panel.path }}) center center; display: block; height: 100px;">
+                                    </a>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ comic.title }}</h5>
+                                    <p class="card-text">{{ character.biography|striptags|u.truncate(128, '...', false) }}</p>
+                                    <a href="{{ path('comic_item', {id: character.id}) }}"
+                                       class="btn btn-sm btn-success">View Comic</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row d-block d-md-none mt-3">
+            <div class="col">
+                <form class="input-group right" role="search" aria-label="Search" method="GET"
+                      action="{{ path('search') }}">
+                    <input type="text" class="form-control w-50" name="q" placeholder="Search" aria-label="Search">
+                    <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

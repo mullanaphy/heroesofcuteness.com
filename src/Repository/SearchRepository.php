@@ -26,4 +26,15 @@ class SearchRepository extends ServiceEntityRepository
             fetchJoinCollection: true
         );
     }
+
+    public function remove(string $entity, int $id): void
+    {
+        $this->createQueryBuilder('s')
+            ->delete(Search::class, 's')
+            ->where('s.entity = :entity AND s.entity_id = :entityId')
+            ->setParameter('entity', $entity)
+            ->setParameter('entityId', $id)
+            ->getQuery()
+            ->execute();
+    }
 }

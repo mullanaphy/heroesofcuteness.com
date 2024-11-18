@@ -8,6 +8,8 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints\Unique;
@@ -24,8 +26,8 @@ class Comic
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[ORM\Column]
-    private ?DateTimeImmutable $created = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?DateTimeInterface $created = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?DateTimeInterface $updated = null;
@@ -44,9 +46,6 @@ class Comic
     #[ORM\OneToOne(mappedBy: 'comic', cascade: ['persist', 'remove'])]
     private ?Hidden $hidden = null;
 
-    #[ORM\OneToOne(mappedBy: 'comic', cascade: ['persist', 'remove'])]
-    private ?Search $search = null;
-
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $content = null;
 
@@ -56,9 +55,16 @@ class Comic
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    /**
+     * @var Collection<int, Character>
+     */
+    #[ORM\ManyToMany(targetEntity: Character::class, mappedBy: 'comics')]
+    private Collection $characters;
+
     public function __construct()
     {
         $this->panels = new ArrayCollection();
+        $this->characters = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -76,29 +82,6 @@ class Comic
         $this->title = $title;
 
         return $this;
-    }
-
-    public function getCreated(): ?DateTimeImmutable
-    {
-        return $this->created;
-    }
-
-    #[ORM\PrePersist]
-    public function setCreated(): void
-    {
-        $this->created = new DateTimeImmutable();
-        $this->updated = new DateTime();
-    }
-
-    public function getUpdated(): ?DateTimeInterface
-    {
-        return $this->updated;
-    }
-
-    #[ORM\PreUpdate]
-    public function setUpdated(): void
-    {
-        $this->updated = new DateTime();
     }
 
     public function getAuthor(): ?User
@@ -165,23 +148,6 @@ class Comic
         return $this;
     }
 
-    public function getSearch(): ?Search
-    {
-        return $this->search;
-    }
-
-    public function setSearch(Search $search): static
-    {
-        // set the owning side of the relation if necessary
-        if ($search->getComic() !== $this) {
-            $search->setComic($this);
-        }
-
-        $this->search = $search;
-
-        return $this;
-    }
-
     public function getContent(): ?string
     {
         return $this->content;
@@ -206,6 +172,13 @@ class Comic
         return $this;
     }
 
+    public function getFeaturing(): Collection
+    {
+        return $this
+            ->getCharacters()
+            ->matching(Criteria::create()->orderBy(['id' => Order::Descending])->setMaxResults(16));
+    }
+
     public function __toString(): string
     {
         return $this->title ?? 'Untitled Comic';
@@ -221,5 +194,69 @@ class Comic
         $this->description = $description;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Character>
+     */
+    public function getCharacters(): Collection
+    {
+        return $this->characters;
+    }
+
+    public function addCharacter(Character $character): static
+    {
+        if (!$this->characters->contains($character)) {
+            $this->characters->add($character);
+            $character->addComic($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCharacter(Character $character): static
+    {
+        if ($this->characters->removeElement($character)) {
+            $character->removeComic($this);
+        }
+
+        return $this;
+    }
+
+    public function getCreated(): DateTimeInterface
+    {
+        return $this->created;
+    }
+
+    public function setCreated(DateTimeInterface $created): static
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    public function getUpdated(): ?DateTimeInterface
+    {
+        return $this->updated;
+    }
+
+    public function setUpdated(DateTimeInterface $updated): static
+    {
+        $this->updated = $updated;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function refreshCreated(): void
+    {
+        $this->setCreated(new DateTime());
+        $this->refreshUpdated();
+    }
+
+    #[ORM\PreUpdate]
+    public function refreshUpdated(): void
+    {
+        $this->setUpdated(new DateTime());
     }
 }

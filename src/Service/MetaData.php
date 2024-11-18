@@ -6,7 +6,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class MetaData
 {
-    public static function paginator(Paginator $paginator = null, int $pageId = 1, $limit = 8, $neighborCount = 2): array
+    public static function paginator(Paginator $paginator = null, ?int $pageId = 1, ?int $limit = 8, $neighborCount = 2): array
     {
         if (!$pageId || $pageId < 1) {
             $pageId = 1;
@@ -19,6 +19,9 @@ class MetaData
 
         $total = count($paginator);
         $pages = ceil($total / $limit);
+        if ($pages < 1) {
+            $pages = 1;
+        }
         if ($pageId > $pages) {
             $pageId = $pages;
         }
@@ -27,6 +30,7 @@ class MetaData
             ->setFirstResult(($pageId * $limit) - $limit)
             ->setMaxResults($limit);
 
+        $neighbors = [];
         for ($i = max(1, $pageId - $neighborCount); $i <= $pageId; ++$i) {
             $neighbors[] = $i;
         }

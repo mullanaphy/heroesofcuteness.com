@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PanelRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -11,7 +13,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 #[ORM\Entity(repositoryClass: PanelRepository::class)]
 class Panel
 {
-    const UPLOAD_DIRECTORY = 'media/';
+    const UPLOAD_DIRECTORY = 'media/comic/';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -35,6 +37,12 @@ class Panel
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $dialogue = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?DateTimeInterface $created = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?DateTimeInterface $updated = null;
 
     public function getId(): ?int
     {
@@ -101,30 +109,36 @@ class Panel
         return $this->source;
     }
 
-    public function getPath(): ?string
+    public function getPath(): string
     {
-        return '/' . self::UPLOAD_DIRECTORY . $this->source;
+        return DIRECTORY_SEPARATOR . $this->getDirectory() . DIRECTORY_SEPARATOR . $this->getSource();
+    }
+
+    public function getDirectory(): string
+    {
+        return self::UPLOAD_DIRECTORY . $this->getComic()->getId();
     }
 
     #[ORM\PreUpdate]
     #[ORM\PrePersist]
     public function upload(): void
     {
-        if (null === $this->file) {
+        if (null === $this->getFile()) {
             return;
         }
 
         $this->file->move(
-            self::UPLOAD_DIRECTORY,
+            $this->getDirectory(),
             $this->file->getClientOriginalName()
         );
 
-        $this->source = $this->file->getClientOriginalName();
+        $this->setSource($this->file->getClientOriginalName());
+        $this->setFile(null);
     }
 
     public function getTitle(): string
     {
-        return implode(' > ', [($this->getComic() ?? new Comic())->getTitle(), 'Panel #' . $this->id]);
+        return implode(' > ', [($this->getComic() ?? new Comic())->getTitle(), 'Panel #' . $this->getSort()]);
     }
 
     public function toArray(): array
@@ -153,4 +167,40 @@ class Panel
         return $this;
     }
 
+    public function getCreated(): DateTimeInterface
+    {
+        return $this->created;
+    }
+
+    public function setCreated(DateTimeInterface $created): static
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    public function getUpdated(): ?DateTimeInterface
+    {
+        return $this->updated;
+    }
+
+    public function setUpdated(DateTimeInterface $updated): static
+    {
+        $this->updated = $updated;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function refreshCreated(): void
+    {
+        $this->setCreated(new DateTime());
+        $this->refreshUpdated();
+    }
+
+    #[ORM\PreUpdate]
+    public function refreshUpdated(): void
+    {
+        $this->setUpdated(new DateTime());
+    }
 }

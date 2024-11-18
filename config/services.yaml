@@ -36,6 +36,11 @@ services:
     tags:
       - { name: sonata.admin, model_class: App\Entity\Panel, manager_type: orm, label: Panel }
 
+  admin.character:
+    class: App\Admin\CharacterAdmin
+    tags:
+      - { name: sonata.admin, model_class: App\Entity\Character, manager_type: orm, label: Character }
+
   admin.search:
     class: App\Admin\SearchAdmin
     tags:

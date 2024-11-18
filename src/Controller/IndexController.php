@@ -2,14 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\Comic;
-use App\Entity\Panel;
+use App\Entity\Search;
 use App\Repository\ComicRepository;
-use App\Repository\SearchRepository;
-use Exception;
-use Michelf\Markdown;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
+use App\Service\MetaData;
+use App\Service\SearchService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,5 +25,18 @@ class IndexController extends AbstractController
     public function about(): Response
     {
         return $this->render('about.html.twig');
+    }
+
+    #[Route('/search', name: 'search', methods: ['GET'])]
+    public function search(Request $request, SearchService $service): Response
+    {
+        $search = $service->search($request->query->get('q'), $request->query->get('pageId'), $request->query->get('limit'));
+
+        strip_tags($request->query->get('q'));
+        if (null === $search) {
+            return $this->redirectToRoute('index');
+        }
+
+        return $this->render('search.html.twig', $search);
     }
 }

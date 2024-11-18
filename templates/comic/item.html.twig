@@ -6,38 +6,68 @@
     <meta property="og:title" content="{{ comic.title }}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ canonical_url }}">
-    <meta property="og:image" content="{{ comic_meta.image }}">
+    <meta property="og:image" content="{{ meta.image }}">
     <meta property="og:description" content="{{ comic.description }}">
-    <meta property="article:author" content="{{ comic_meta.author[0].url }}">
+    <meta property="article:author" content="{{ meta.author[0].url }}">
     <meta name="description" content="{{ comic.description }}">
-    <script type="application/ld+json">{{ comic_meta|json_encode|raw }}</script>
+    <script type="application/ld+json">{{ meta|json_encode|raw }}</script>
 {% endblock %}
 
 {% block body %}
     <div class="container comic">
         <div class="row mt-3">
-            {{ block('comic_pagination') }}
+            <div class="col">
+                {{ block('comic_pagination') }}
+            </div>
         </div>
         <div class="row mt-3">
-            {% for panel in panels %}
-                <img name="comic" src="{{ panel.path }}" alt="{{ panel.alt }}"/>
-            {% endfor %}
+            <div class="col">
+                {% for panel in panels %}
+                    <img name="comic" src="{{ panel.path }}" alt="{{ panel.alt }}"/>
+                {% endfor %}
+            </div>
         </div>
         <div class="row mt-3">
-            {{ block('comic_pagination') }}
+            <div class="col">
+                {{ block('comic_pagination') }}
+            </div>
         </div>
-        {% if content %}
-            <div class="row mt-3">
+        <div class="row mt-3">
+            <div class="col-xs-12 col-sm-12 col-md-6">
                 <h1>{{ comic.title }}</h1>
                 {{ content|raw }}
             </div>
-        {% endif %}
-        <div class="row mt-3 d-block d-md-none ">
-            <form class="input-group right" role="search" aria-label="Search" method="GET"
-                  action="{{ path('search') }}">
-                <input type="text" class="form-control w-50" name="q" placeholder="Search" aria-label="Search">
-                <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
-            </form>
+            <div class="col-xs-12 col-sm-12 col-md-6">
+                <div class="row">
+                    <h2>Featuring:</h2>
+                </div>
+                <div class="row">
+                    {% for character in comic.featuring %}
+                        <div class="col-6">
+                            <div class="card">
+                                <a href="{{ path('character_item', {id: character.id}) }}"
+                                   style="background: url({{ character.path }}) center center; display: block; height: 100px;">
+                                </a>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ character.name }}</h5>
+                                    <p class="card-text">{{ character.biography|striptags|u.truncate(128, '...', false) }}</p>
+                                    <a href="{{ path('character_item', {id: character.id}) }}"
+                                       class="btn btn-sm btn-success">View Character</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row d-block d-md-none mt-3">
+            <div class="col">
+                <form class="input-group right" role="search" aria-label="Search" method="GET"
+                      action="{{ path('search') }}">
+                    <input type="text" class="form-control w-50" name="q" placeholder="Search" aria-label="Search">
+                    <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}
@@ -47,11 +77,11 @@
         <div class="btn-group" role="pagination" aria-label="Pagination">
             {% if (previous_comic) %}
                 <a type="button" class="btn btn-warning"
-                   href="{{ path('comic', {id: header_navigation.first}) }}">
+                   href="{{ path('comic_item', {id: header_navigation.first}) }}">
                     <span class="d-none d-md-inline">First</span>
                     <span class="d-inline d-md-none">&laquo;&laquo;</span>
                 </a>
-                <a type="button" class="btn btn-warning" href="{{ path('comic', {id: previous_comic}) }}">
+                <a type="button" class="btn btn-warning" href="{{ path('comic_item', {id: previous_comic}) }}">
                     <span class="d-none d-md-inline">Previous</span>
                     <span class="d-inline d-md-none">&laquo;</span>
                 </a>
@@ -66,11 +96,12 @@
                 </button>
             {% endif %}
             {% if next_comic %}
-                <a type="button" class="btn btn-warning" href="{{ path('comic', {id: next_comic}) }}">
+                <a type="button" class="btn btn-warning" href="{{ path('comic_item', {id: next_comic}) }}">
                     <span class="d-none d-md-inline">Next</span>
                     <span class="d-inline d-md-none">&raquo;</span>
                 </a>
-                <a type="button" class="btn btn-warning" href="{{ path('comic', {id: header_navigation.current}) }}">
+                <a type="button" class="btn btn-warning"
+                   href="{{ path('comic_item', {id: header_navigation.current}) }}">
                     <span class="d-none d-md-inline">Current</span>
                     <span class="d-inline d-md-none">&raquo;&raquo;</span>
                 </a>

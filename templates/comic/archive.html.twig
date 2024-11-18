@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ page.title|striptags }} | {{ site.title }}{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row mt-3">
+            {{ block('comic_archive_pagination') }}
+        </div>
+        <div class="row mt-3">
+            {% for comic in collection %}
+                {% set panel = comic.panels[0] %}
+                <div class="col-xs-12 col-md-3">
+                    <div class="card">
+                        {% if panel %}
+                            <a href="{{ path('comic_item', {id: comic.id}) }}"
+                               style="background: url({{ panel.path }}) top left; display: block; height: 200px;">
+                            </a>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ comic.title }}</h5>
+                            <p class="card-text">{{ comic.description|striptags|u.truncate(128, '...', false) }}</p>
+                            <a href="{{ path('comic_item', {id: comic.id}) }}" class="btn btn-sm btn-success">View
+                                Comic</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                No results found
+            {% endfor %}
+        </div>
+        <div class="row mt-3">
+            {{ block('comic_archive_pagination') }}
+        </div>
+        <div class="row mt-3 d-block d-md-none">
+            <form class="input-group right" role="search" aria-label="Search" method="GET"
+                  action="{{ path('search') }}">
+                <input type="text" class="form-control w-50" name="q" placeholder="Search" aria-label="Search"
+                       {% if page.parameters and page.parameters.q %}value="{{ page.parameters.q }}"{% endif %}>
+                <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block comic_archive_pagination %}
+    <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Pagination and search">
+        <div class="btn-group" role="pagination" aria-label="Pagination">
+            {% if pageId > 1 %}
+                <a type="button" class="btn btn-warning"
+                   href="{{ path(page.url, page.parameters|merge({pageId: pageId - 1, limit: limit})) }}">&laquo;</a>
+            {% else %}
+                <button type="button" class="btn btn-warning disabled">&laquo;</button>
+            {% endif %}
+            {% for neighbor in neighbors %}
+                {% if neighbor != pageId %}
+                    <a type="button" class="btn btn-warning"
+                       href="{{ path(page.url, page.parameters|merge({pageId: neighbor, limit: limit})) }}">{{ neighbor }}</a>
+                {% else %}
+                    <button type="button" class="btn btn-warning disabled">{{ neighbor }}</button>
+                {% endif %}
+            {% endfor %}
+            {% if pageId < pages %}
+                <a type="button" class="btn btn-warning"
+                   href="{{ path(page.url, page.parameters|merge({pageId: pageId +1, limit: limit})) }}">&raquo;</a>
+            {% else %}
+                <button type="button" class="btn btn-warning disabled">&raquo;</button>
+            {% endif %}
+        </div>
+        <div class="d-none d-md-inline">
+            <form class="input-group right" role="search" aria-label="Search" method="GET"
+                  action="{{ path('search') }}">
+                <input type="text" class="form-control" name="q" placeholder="Search" aria-label="Search"
+                       {% if page.parameters and page.parameters.q %}value="{{ page.parameters.q }}"{% endif %}>
+                <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

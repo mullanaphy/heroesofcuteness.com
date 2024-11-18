@@ -18,10 +18,10 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ComicController extends AbstractController
 {
-    #[Route('/comic', name: 'archive')]
+    #[Route('/comic', name: 'comic_archive')]
     public function archive(Request $request, ComicRepository $repository): Response
     {
-        return $this->render('comic/index.html.twig', [
+        return $this->render('comic/archive.html.twig', [
             'page' => [
                 'url' => 'archive',
                 'title' => 'Comic Archive',
@@ -34,79 +34,69 @@ class ComicController extends AbstractController
             )]);
     }
 
-    #[Route('/comic/{id}', name: 'comic')]
+    #[Route('/comic/{id}', name: 'comic_item')]
     public function item(int $id, Request $request, ComicRepository $repository): Response
     {
-        try {
-            /* @var Comic $comic */
-            $comic = $repository->findOneBy(['id' => $id]);
+        /* @var Comic $comic */
+        $comic = $repository->findOneBy(['id' => $id]);
 
-            $metaImage = null;
-            $panels = [];
-            foreach ($comic->getPanels() as $panel) {
-                /* @var Panel $panel */
-                if ($metaImage === null) {
-                    $metaImage = $request->getSchemeAndHttpHost() . $panel->getPath();
-                }
-                $panels[] = $panel->toArray();
+        $metaImage = null;
+        $panels = [];
+        foreach ($comic->getPanels() as $panel) {
+            /* @var Panel $panel */
+            if ($metaImage === null) {
+                $metaImage = $request->getSchemeAndHttpHost() . $panel->getPath();
             }
-
-            $content = $comic->getContent();
-            if (null !== $content) {
-                if (!$comic->isRaw()) {
-                    $content = Markdown::defaultTransform($content);
-                }
-            }
-
-            $canonicalUrl = $this->generateUrl('comic', ['id' => $comic->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
-            $meta = [
-                '@context' => 'http://schema.org',
-                '@type' => 'Article',
-                'mainEntityOfPage' => [
-                    '@type' => 'WebPage',
-                    '@id' => $canonicalUrl
-                ],
-                'author' => [
-                    [
-                        '@type' => 'Person',
-                        'url' => 'https://john.mu',
-                        'name' => 'John Mullanaphy'
-                    ],
-                    [
-                        '@type' => 'Person',
-                        'url' => 'https://initials.kim',
-                        'name' => 'Keira Mullanaphy'
-                    ],
-                ],
-                'publisher' => [
-                    '@type' => 'Organization',
-                    'name' => 'Heroes of Cuteness',
-                ],
-                'image' => $metaImage,
-                'datePublished' => $comic->getCreated()->format('Y-m-d\TH:i:s\Z'),
-                'dateModified' => $comic->getUpdated()->format('Y-m-d\TH:i:s\Z')
-            ];
-
-            $nextComic = $repository->findNextComic($comic);
-            $previousComic = $repository->findPreviousComic($comic);
-
-            return $this->render('comic/item.html.twig', [
-                'comic' => $comic,
-                'canonical_url' => $canonicalUrl,
-                'content' => $content,
-                'panels' => $panels,
-                'comic_meta' => $meta,
-                'next_comic' => $nextComic ? $nextComic->getId() : null,
-                'previous_comic' => $previousComic ? $previousComic->getId() : null
-            ]);
-        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface) {
-            return $this->redirectToRoute('index');
+            $panels[] = $panel->toArray();
         }
-    }
 
-    #[Route('/about', name: 'about')]
-    public function about(): Response
-    {
-        return $this->render('about.html.twig');
+        $content = $comic->getContent();
+        if (null !== $content) {
+            if (!$comic->isRaw()) {
+                $content = Markdown::defaultTransform($content);
+            }
+        }
+
+        $canonicalUrl = $this->generateUrl('comic_item', ['id' => $comic->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $meta = [
+            '@context' => 'http://schema.org',
+            '@type' => 'Article',
+            'mainEntityOfPage' => [
+                '@type' => 'WebPage',
+                '@id' => $canonicalUrl
+            ],
+            'author' => [
+                [
+                    '@type' => 'Person',
+                    'url' => 'https://john.mu',
+                    'name' => 'John Mullanaphy'
+                ],
+                [
+                    '@type' => 'Person',
+                    'url' => 'https://initials.kim',
+                    'name' => 'Keira Mullanaphy'
+                ],
+            ],
+            'publisher' => [
+                '@type' => 'Organization',
+                'name' => 'Heroes of Cuteness',
+            ],
+            'image' => $metaImage,
+            'datePublished' => $comic->getCreated()->format('Y-m-d\TH:i:s\Z'),
+            'dateModified' => $comic->getUpdated()->format('Y-m-d\TH:i:s\Z')
+        ];
+
+        $nextComic = $repository->findNextComic($comic);
+        $previousComic = $repository->findPreviousComic($comic);
+
+        return $this->render('comic/item.html.twig', [
+            'comic' => $comic,
+            'canonical_url' => $canonicalUrl,
+            'content' => $content,
+            'panels' => $panels,
+            'meta' => $meta,
+            'next_comic' => $nextComic ? $nextComic->getId() : null,
+            'previous_comic' => $previousComic ? $previousComic->getId() : null
+        ]);
     }
 }

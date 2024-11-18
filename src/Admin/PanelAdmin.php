@@ -8,6 +8,7 @@ use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -35,17 +36,43 @@ class PanelAdmin extends AbstractAdmin
             ->with('Meta', ['class' => 'col-md-3'])
             ->add('comic', EntityType::class, ['class' => Comic::class])
             ->add('sort', NumberType::class)
-            ->end()
+            ->add('created', DateTimeType::class, ['disabled' => true])
+            ->add('updated', DateTimeType::class, ['disabled' => true])
             ->end();
     }
 
     protected function configureListFields(ListMapper $list): void
     {
         $list
-            ->addIdentifier('title', null, [
+            ->addIdentifier('id', null, [
                 'route' => [
                     'name' => 'edit'
-                ]
+                ],
+                'row_align' => 'left',
+                'header_style' => 'width: 5%',
+            ])
+            ->add('title', null, [
+                'header_style' => 'width: 20%',
+            ])
+            ->add('alt', null, [
+                'collapse' => true,
+                'header_style' => 'width: 40%',
+            ])
+            ->add('created', null, [
+                'header_style' => 'width: 15%',
+            ])
+            ->add('updated', null, [
+                'header_style' => 'width: 15%',
             ]);
+    }
+
+    protected function prePersist(object $object): void
+    {
+        $object->refreshUpdated();
+    }
+
+    protected function preUpdate(object $object): void
+    {
+        $object->refreshUpdated();
     }
 }
