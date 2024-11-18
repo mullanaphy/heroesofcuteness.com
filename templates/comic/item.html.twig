@@ -21,11 +21,9 @@
             </div>
         </div>
         <div class="row mt-3">
-            <div class="col">
-                {% for panel in panels %}
-                    <img name="comic" src="{{ panel.path }}" alt="{{ panel.alt }}"/>
-                {% endfor %}
-            </div>
+            {% for panel in panels %}
+                <img name="comic" src="{{ panel.path }}" alt="{{ panel.alt }}"/>
+            {% endfor %}
         </div>
         <div class="row mt-3">
             <div class="col">
