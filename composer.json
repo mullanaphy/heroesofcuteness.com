@@ -47,7 +47,8 @@
     "symfony/yaml": "7.1.*",
     "twbs/bootstrap": "5.3.3",
     "twbs/bootstrap-icons": "^1.11",
-    "twig/extra-bundle": "^2.12|^3.0",
+    "twig/extra-bundle": "^3.15",
+    "twig/markdown-extra": "^3.15",
     "twig/twig": "^2.12|^3.0"
   },
   "config": {

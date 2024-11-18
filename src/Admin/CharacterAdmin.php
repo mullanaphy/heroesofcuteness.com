@@ -40,6 +40,7 @@ class CharacterAdmin extends AbstractAdmin
             ->add('raw', CheckboxType::class, ['required' => false, 'label' => 'Allow raw HTML'])
             ->end()
             ->with('Meta', ['class' => 'col-md-3'])
+            ->add('description', TextareaType::class, ['attr' => ['rows' => 5, 'maxlength' => 128]])
             ->add('comics', EntityType::class, [
                 'class' => Comic::class,
                 'multiple' => true,

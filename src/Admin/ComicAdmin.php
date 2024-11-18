@@ -33,7 +33,7 @@ class ComicAdmin extends AbstractAdmin
             ->end()
             ->with('Meta', ['class' => 'col-md-3'])
             ->add('author', EntityType::class, ['class' => User::class, 'required' => true, 'empty_data' => $this->tokenStorage->getToken()->getUser(), 'choice_label' => 'username'])
-            ->add('description', TextareaType::class, ['attr' => ['rows' => 5]])
+            ->add('description', TextareaType::class, ['attr' => ['rows' => 5, 'maxlength' => 128]])
             ->add('characters', EntityType::class, [
                 'class' => Character::class,
                 'multiple' => true,

@@ -59,6 +59,9 @@ class Character
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?DateTimeInterface $updated = null;
 
+    #[ORM\Column(length: 128)]
+    private ?string $description = null;
+
     public function __construct()
     {
         $this->comics = new ArrayCollection();
@@ -252,5 +255,17 @@ class Character
     public function refreshUpdated(): void
     {
         $this->setUpdated(new DateTime());
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
     }
 }

@@ -2,6 +2,9 @@
 
 namespace App\Service;
 
+use App\Entity\Character;
+use App\Entity\Comic;
+use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class MetaData
@@ -47,5 +50,38 @@ class MetaData
             'total' => $total,
             'neighbors' => $neighbors
         ];
+    }
+
+    public static function ldJson(Character|Comic $entity, string $canonicalUrl, ?string $image): array
+    {
+        $metaData = [
+            '@context' => 'http://schema.org',
+            '@type' => 'Article',
+            'mainEntityOfPage' => [
+                '@type' => 'WebPage',
+                '@id' => $canonicalUrl
+            ],
+            'author' => [
+                [
+                    '@type' => 'Person',
+                    'url' => 'https://john.mu',
+                    'name' => 'John Mullanaphy'
+                ],
+                [
+                    '@type' => 'Person',
+                    'url' => 'https://initials.kim',
+                    'name' => 'Keira Mullanaphy'
+                ],
+            ],
+            'publisher' => [
+                '@type' => 'Organization',
+                'name' => 'Heroes of Cuteness',
+            ],
+            'image' => $image,
+            'datePublished' => $entity->getCreated()->format('Y-m-d\TH:i:s\Z'),
+            'dateModified' => $entity->getUpdated()->format('Y-m-d\TH:i:s\Z')
+        ];
+
+        return $metaData;
     }
 }

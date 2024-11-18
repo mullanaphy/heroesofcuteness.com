@@ -6,10 +6,6 @@ use App\Entity\Comic;
 use App\Entity\Panel;
 use App\Repository\ComicRepository;
 use App\Service\MetaData;
-use Exception;
-use Michelf\Markdown;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,51 +46,15 @@ class ComicController extends AbstractController
             $panels[] = $panel->toArray();
         }
 
-        $content = $comic->getContent();
-        if (null !== $content) {
-            if (!$comic->isRaw()) {
-                $content = Markdown::defaultTransform($content);
-            }
-        }
-
         $canonicalUrl = $this->generateUrl('comic_item', ['id' => $comic->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
-        $meta = [
-            '@context' => 'http://schema.org',
-            '@type' => 'Article',
-            'mainEntityOfPage' => [
-                '@type' => 'WebPage',
-                '@id' => $canonicalUrl
-            ],
-            'author' => [
-                [
-                    '@type' => 'Person',
-                    'url' => 'https://john.mu',
-                    'name' => 'John Mullanaphy'
-                ],
-                [
-                    '@type' => 'Person',
-                    'url' => 'https://initials.kim',
-                    'name' => 'Keira Mullanaphy'
-                ],
-            ],
-            'publisher' => [
-                '@type' => 'Organization',
-                'name' => 'Heroes of Cuteness',
-            ],
-            'image' => $metaImage,
-            'datePublished' => $comic->getCreated()->format('Y-m-d\TH:i:s\Z'),
-            'dateModified' => $comic->getUpdated()->format('Y-m-d\TH:i:s\Z')
-        ];
-
         $nextComic = $repository->findNextComic($comic);
         $previousComic = $repository->findPreviousComic($comic);
 
         return $this->render('comic/item.html.twig', [
             'comic' => $comic,
             'canonical_url' => $canonicalUrl,
-            'content' => $content,
             'panels' => $panels,
-            'meta' => $meta,
+            'meta' => MetaData::ldJson($comic, $canonicalUrl, $metaImage),
             'next_comic' => $nextComic ? $nextComic->getId() : null,
             'previous_comic' => $previousComic ? $previousComic->getId() : null
         ]);

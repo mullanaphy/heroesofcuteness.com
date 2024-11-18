@@ -52,7 +52,7 @@ class Comic
     #[ORM\Column(nullable: true)]
     private ?bool $raw = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(length: 128)]
     private ?string $description = null;
 
     /**

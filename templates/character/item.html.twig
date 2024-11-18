@@ -7,9 +7,9 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ canonical_url }}">
     <meta property="og:image" content="{{ meta.image }}">
-    <meta property="og:description" content="{{ character.biography|u.truncate(128, '...', false) }}">
+    <meta property="og:description" content="{{ character.description }}">
     <meta property="article:author" content="{{ meta.author[0].url }}">
-    <meta name="description" content="{{ character.biography|u.truncate(128, '...', false) }}">
+    <meta name="description" content="{{ character.description }}">
     <script type="application/ld+json">{{ meta|json_encode|raw }}</script>
 {% endblock %}
 
@@ -22,7 +22,11 @@
             <div class="col-xs-12 col-sm-12 col-md-4">
                 <h1>{{ character.name }}</h1>
                 {% if character.nickname %}<h2><em>{{ character.nickname }}</em></h2>{% endif %}
-                {{ character.biography|raw }}
+                {% if character.isRaw %}
+                    {{ character.biography|raw }}
+                {% else %}
+                    {{ character.biography|markdown_to_html }}
+                {% endif %}
             </div>
             <div class="col-xs-12 col-sm-12 col-md-6">
                 <div class="row">
@@ -34,13 +38,13 @@
                             <div class="card">
                                 {% if comic.panels|length >= 1 %}
                                     <a href="{{ path('comic_item', {id: comic.id}) }}"
-                                       style="background: url({{ comic.panels[0].path }}) center center; display: block; height: 100px;">
+                                       style="background: url({{ comic.panels[0].path }}) top center; display: block; height: 200px;">
                                     </a>
                                 {% endif %}
                                 <div class="card-body">
                                     <h5 class="card-title">{{ comic.title }}</h5>
-                                    <p class="card-text">{{ character.biography|striptags|u.truncate(128, '...', false) }}</p>
-                                    <a href="{{ path('comic_item', {id: character.id}) }}"
+                                    <p class="card-text">{{ comic.description }}</p>
+                                    <a href="{{ path('comic_item', {id: comic.id}) }}"
                                        class="btn btn-sm btn-success">View Comic</a>
                                 </div>
                             </div>

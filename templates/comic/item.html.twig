@@ -33,7 +33,15 @@
         <div class="row mt-3">
             <div class="col-xs-12 col-sm-12 col-md-6">
                 <h1>{{ comic.title }}</h1>
-                {{ content|raw }}
+                {% if comic.content %}
+                    {% if comic.isRaw %}
+                        {{ comic.content|raw }}
+                    {% else %}
+                        {{ comic.content|markdown_to_html }}
+                    {% endif %}
+                {% else %}
+                    <em>No content for this comic.</em>
+                {% endif %}
             </div>
             <div class="col-xs-12 col-sm-12 col-md-6">
                 <div class="row">
@@ -44,11 +52,11 @@
                         <div class="col-6">
                             <div class="card">
                                 <a href="{{ path('character_item', {id: character.id}) }}"
-                                   style="background: url({{ character.path }}) center center; display: block; height: 100px;">
+                                   style="background: url({{ character.path }}) top center; display: block; height: 200px;">
                                 </a>
                                 <div class="card-body">
                                     <h5 class="card-title">{{ character.name }}</h5>
-                                    <p class="card-text">{{ character.biography|striptags|u.truncate(128, '...', false) }}</p>
+                                    <p class="card-text">{{ character.description }}</p>
                                     <a href="{{ path('character_item', {id: character.id}) }}"
                                        class="btn btn-sm btn-success">View Character</a>
                                 </div>

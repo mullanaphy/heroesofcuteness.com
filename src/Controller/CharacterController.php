@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Character;
 use App\Repository\CharacterRepository;
 use App\Service\MetaData;
-use Michelf\Markdown;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,46 +36,10 @@ class CharacterController extends AbstractController
         $character = $repository->findOneBy(['id' => $id]);
 
         $canonicalUrl = $this->generateUrl('character_item', ['id' => $character->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
-        $meta = [
-            '@context' => 'http://schema.org',
-            '@type' => 'Article',
-            'mainEntityOfPage' => [
-                '@type' => 'WebPage',
-                '@id' => $canonicalUrl
-            ],
-            'author' => [
-                [
-                    '@type' => 'Person',
-                    'url' => 'https://john.mu',
-                    'name' => 'John Mullanaphy'
-                ],
-                [
-                    '@type' => 'Person',
-                    'url' => 'https://initials.kim',
-                    'name' => 'Keira Mullanaphy'
-                ],
-            ],
-            'publisher' => [
-                '@type' => 'Organization',
-                'name' => 'Heroes of Cuteness',
-            ],
-            'image' => $request->getSchemeAndHttpHost() . $character->getPath(),
-            'datePublished' => $character->getCreated()->format('Y-m-d\TH:i:s\Z'),
-            'dateModified' => $character->getUpdated()->format('Y-m-d\TH:i:s\Z')
-        ];
-
-        $biography = $character->getBiography();
-        if (null !== $biography) {
-            if (!$character->isRaw()) {
-                $biography = Markdown::defaultTransform($biography);
-            }
-        }
-
         return $this->render('character/item.html.twig', [
             'character' => $character,
-            'biography' => $biography,
             'canonical_url' => $canonicalUrl,
-            'meta' => $meta
+            'meta' => MetaData::ldJson($character, $canonicalUrl, $request->getSchemeAndHttpHost() . $character->getPath()),
         ]);
     }
 }
