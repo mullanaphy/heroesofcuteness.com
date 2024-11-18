@@ -30,13 +30,11 @@ class IndexController extends AbstractController
     #[Route('/search', name: 'search', methods: ['GET'])]
     public function search(Request $request, SearchService $service): Response
     {
-        $search = $service->search($request->query->get('q'), $request->query->get('pageId'), $request->query->get('limit'));
-
-        strip_tags($request->query->get('q'));
-        if (null === $search) {
+        $q = $request->query->get('q');
+        if (!$q) {
             return $this->redirectToRoute('index');
         }
 
-        return $this->render('search.html.twig', $search);
+        return $this->render('search.html.twig', $service->search($q, $request->query->get('pageId'), $request->query->get('limit')));
     }
 }

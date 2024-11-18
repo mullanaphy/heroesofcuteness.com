@@ -9,12 +9,12 @@ use App\Repository\CharacterRepository;
 use App\Repository\ComicRepository;
 use App\Repository\SearchRepository;
 
-class SearchService
+readonly class SearchService
 {
     public function __construct(
-        private readonly SearchRepository    $searchRepository,
-        private readonly ComicRepository     $comicRepository,
-        private readonly CharacterRepository $characterRepository,
+        private SearchRepository    $searchRepository,
+        private ComicRepository     $comicRepository,
+        private CharacterRepository $characterRepository,
     )
     {
 
@@ -22,10 +22,7 @@ class SearchService
 
     public function search(?string $search, ?int $pageId, ?int $limit): ?array
     {
-        if (!$search) {
-            return null;
-        }
-
+        $search = strip_tags($search);
         $data = MetaData::paginator(
             $this->searchRepository->findByQuery($search),
             $pageId,
@@ -70,7 +67,7 @@ class SearchService
             'id' => $character->getId(),
             'image' => $character->getPath(),
             'title' => $character->getName(),
-            'content' => $character->getBiography(),
+            'description' => $character->getDescription(),
         ];
     }
 
@@ -90,7 +87,7 @@ class SearchService
             'id' => $comic->getId(),
             'image' => $image,
             'title' => $comic->getTitle(),
-            'content' => $comic->getContent(),
+            'description' => $comic->getDescription(),
         ];
     }
 }
