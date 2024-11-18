@@ -13,7 +13,7 @@
                         </a>
                         <div class="card-body">
                             <h5 class="card-title">{{ character.name }}</h5>
-                            <p class="card-text">{{ character.biography|striptags|u.truncate(128, '...', false) }}</p>
+                            <p class="card-text">{{ character.description }}</p>
                             <a href="{{ path('character_item', {id: character.id}) }}" class="btn btn-sm btn-success">View
                                 Character</a>
                         </div>
