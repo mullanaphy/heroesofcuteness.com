@@ -13,8 +13,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class IndexController extends AbstractController
 {
-    const LIMIT = 10;
-
     #[Route('/', name: 'index')]
     public function index(ComicRepository $repository): Response
     {
