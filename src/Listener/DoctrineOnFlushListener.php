@@ -9,113 +9,46 @@ use App\Entity\Panel;
 use App\Entity\Search;
 use App\Repository\SearchRepository;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
-use Doctrine\ORM\UnitOfWork;
-use Doctrine\Persistence\ObjectManager;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Michelf\Markdown;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[AsDoctrineListener(event: Events::onFlush)]
-readonly class DoctrineOnFlushListener
+#[AsDoctrineListener(event: Events::postFlush)]
+class DoctrineOnFlushListener
 {
+    private const INSERT = 'INSERT INTO search (entity, entity_id, content, created, updated) VALUES (:entity, :entityId, :content, :created, :updated)';
+    private const UPDATE = 'UPDATE search SET content = :content WHERE entity = :entity AND entity_id = :entityId';
+
+    private array $toSave = [];
+
     public function __construct(
-        private TagAwareCacheInterface $cache
+        private readonly TagAwareCacheInterface $cache,
+        private readonly SearchRepository       $searchRepository,
+        private readonly EntityManagerInterface $entityManager,
     )
     {
 
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
     public function onFlush(OnFlushEventArgs $eventArgs): void
     {
         $manager = $eventArgs->getObjectManager();
         $unitOfWork = $manager->getUnitOfWork();
 
-        $comics = [];
-        $characters = [];
-        foreach ([...$unitOfWork->getScheduledEntityInsertions(), ...$unitOfWork->getScheduledEntityUpdates()] as $entity) {
+        foreach ([...$unitOfWork->getScheduledEntityUpdates(), ...$unitOfWork->getScheduledEntityInsertions()] as $entity) {
             if ($entity instanceof Comic) {
-                $comics[$entity->getId()] = $entity;
-            } else if ($entity instanceof Panel || $entity instanceof Hidden && !array_key_exists($entity->getComic()->getId(), $comics)) {
-                $comics[$entity->getComic()->getId()] = $entity->getComic();
+                $this->toSave[] = $this->pairSearchAndEntity($entity);
+            } else if ($entity instanceof Panel || $entity instanceof Hidden) {
+                $this->toSave[] = $this->pairSearchAndEntity($entity->getComic());
             } else if ($entity instanceof Character) {
-                $characters[$entity->getId()] = $entity;
+                $this->toSave[] = $this->pairSearchAndEntity($entity);
             }
-        }
-
-        $repository = $manager->getRepository(Search::class);
-
-        if (count($comics)) {
-            $this->processComics($comics, $manager, $unitOfWork, $repository);
-        }
-
-        if (count($characters)) {
-            $this->processCharacters($characters, $manager, $unitOfWork, $repository);
-        }
-
-        $this->cache->invalidateTags(['comics']);
-    }
-
-    private function processComics(array $comics, ObjectManager $manager, UnitOfWork $unitOfWork, SearchRepository $repository): void
-    {
-        foreach ($comics as $comic) {
-            /* @var Comic $comic */
-            $comicContent = $comic->getContent();
-            if ($comicContent && !$comic->isRaw()) {
-                $comicContent = Markdown::defaultTransform($comicContent);
-            }
-            $content = [
-                $comic->getTitle(),
-                $comicContent,
-                $comic->getAuthor()->getUsername(),
-                $comic->getDescription(),
-            ];
-
-            foreach ($comic->getPanels() as $panel) {
-                $content[] = $panel->getDialogue();
-                $content[] = $panel->getAlt();
-                $content[] = $panel->getTitle();
-            }
-
-            $hidden = $comic->getHidden();
-            if (null !== $hidden) {
-                $content[] = $comic->getHidden()->getAlt();
-            }
-
-            $search = $this->findSearch('Comic', $comic->getId(), $repository);
-            $search->setContent(self::cleanContent($content));
-            $manager->persist($search);
-
-            $unitOfWork->computeChangeSet($manager->getClassMetadata(Comic::class), $comic);
-            $unitOfWork->computeChangeSet($manager->getClassMetadata(Search::class), $search);
-        }
-    }
-
-    private function processCharacters(array $characters, ObjectManager $manager, UnitOfWork $unitOfWork, SearchRepository $repository): void
-    {
-        foreach ($characters as $character) {
-            /* @var Character $character */
-            $content = [
-                $character->getName(),
-                $character->getNickname(),
-            ];
-
-            $biography = $character->getBiography();
-            if ($biography && !$character->isRaw()) {
-                $biography = Markdown::defaultTransform($biography);
-            }
-            $content[] = $biography;
-
-            $search = $this->findSearch('Character', $character->getId(), $repository);
-            $search->setContent(self::cleanContent($content));
-            $manager->persist($search);
-
-            $unitOfWork->computeChangeSet($manager->getClassMetadata(Character::class), $character);
-            $unitOfWork->computeChangeSet($manager->getClassMetadata(Search::class), $search);
         }
     }
 
@@ -135,18 +68,94 @@ readonly class DoctrineOnFlushListener
         );
     }
 
-    private function findSearch(string $entity, int $entityId, SearchRepository $repository): ?Search
+    private function pairSearchAndEntity(Character|Comic $entity): array
     {
-        $search = $repository->findOneBy(['entity' => $entity, 'entity_id' => $entityId]);
-        if ($search === null) {
+        $fragments = explode('\\', $entity::class);
+        $entityName = array_pop($fragments);
+
+        if ($entity->getId()) {
+            $search = $this->searchRepository->findOneBy(['entity' => $entityName, 'entity_id' => $entity->getId()]);
+            $search->refreshUpdated();
+        } else {
             $search = new Search;
             $search->refreshCreated();
-        } else {
-            $search->refreshUpdated();
+            $search->setEntity($entityName);
+        }
+        $search->setContent(self::cleanContent($entity instanceof Comic
+            ? $this->getComicContent($entity)
+            : $this->getCharacterContent($entity)
+        ));
+
+        return [$search, $entity];
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function postFlush(PostFlushEventArgs $eventArgs): void
+    {
+        foreach ($this->toSave as $pair) {
+            /* @var Search $search */
+            $search = $pair[0];
+            /* @var Comic|Character $entity */
+            $entity = $pair[1];
+
+            $this->entityManager->createNativeQuery($search->getEntityId() ? self::UPDATE : self::INSERT, new ResultSetMapping())
+                ->setParameters([
+                    'entity' => $search->getEntity(),
+                    'entityId' => $entity->getId(),
+                    'content' => $search->getContent(),
+                    'created' => $search->getCreated(),
+                    'updated' => $search->getUpdated(),
+                ])
+                ->execute();
         }
 
-        $search->setEntity($entity);
-        $search->setEntityId($entityId);
-        return $search;
+        $this->toSave = [];
+
+        $this->cache->invalidateTags(['comics']);
+    }
+
+    private function getComicContent(Comic $comic): array
+    {
+        $comicContent = $comic->getContent();
+        if ($comicContent && !$comic->isRaw()) {
+            $comicContent = Markdown::defaultTransform($comicContent);
+        }
+        $content = [
+            $comic->getTitle(),
+            $comicContent,
+            $comic->getAuthor()->getUsername(),
+            $comic->getDescription(),
+        ];
+
+        foreach ($comic->getPanels() as $panel) {
+            $content[] = $panel->getDialogue();
+            $content[] = $panel->getAlt();
+            $content[] = $panel->getTitle();
+        }
+
+        $hidden = $comic->getHidden();
+        if (null !== $hidden) {
+            $content[] = $comic->getHidden()->getAlt();
+        }
+
+        return $content;
+    }
+
+    private function getCharacterContent(Character $character): array
+    {
+        $content = [
+            $character->getName(),
+            $character->getNickname(),
+        ];
+
+        $biography = $character->getBiography();
+        if ($biography && !$character->isRaw()) {
+            $biography = Markdown::defaultTransform($biography);
+        }
+        $content[] = $biography;
+
+        return $content;
     }
 }

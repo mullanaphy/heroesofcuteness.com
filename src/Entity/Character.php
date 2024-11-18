@@ -153,9 +153,11 @@ class Character
         return $this;
     }
 
-    public function getPath(): string
+    public function getPath(): ?string
     {
-        return DIRECTORY_SEPARATOR . $this->getDirectory() . DIRECTORY_SEPARATOR . $this->getSource();
+        return $this->getId()
+            ? DIRECTORY_SEPARATOR . $this->getDirectory() . DIRECTORY_SEPARATOR . $this->getSource()
+            : null;
     }
 
     public function getDirectory(): string

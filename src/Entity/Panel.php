@@ -109,12 +109,14 @@ class Panel
         return $this->source;
     }
 
-    public function getPath(): string
+    public function getPath(): ?string
     {
-        return DIRECTORY_SEPARATOR . $this->getDirectory() . DIRECTORY_SEPARATOR . $this->getSource();
+        return $this->getId()
+            ? DIRECTORY_SEPARATOR . $this->getDirectory() . DIRECTORY_SEPARATOR . $this->getSource()
+            : null;
     }
 
-    public function getDirectory(): string
+    public function getDirectory(): ?string
     {
         return self::UPLOAD_DIRECTORY . $this->getComic()->getId();
     }
