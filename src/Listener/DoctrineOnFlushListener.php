@@ -96,9 +96,8 @@ class DoctrineOnFlushListener
     {
         foreach ($this->toSave as $pair) {
             /* @var Search $search */
-            $search = $pair[0];
             /* @var Comic|Character $entity */
-            $entity = $pair[1];
+            list($search, $entity) = $pair;
 
             $this->entityManager->createNativeQuery($search->getEntityId() ? self::UPDATE : self::INSERT, new ResultSetMapping())
                 ->setParameters([
@@ -111,9 +110,10 @@ class DoctrineOnFlushListener
                 ->execute();
         }
 
-        $this->toSave = [];
-
-        $this->cache->invalidateTags(['comics']);
+        if (count($this->toSave)) {
+            $this->toSave = [];
+            $this->cache->invalidateTags(['comics']);
+        }
     }
 
     private function getComicContent(Comic $comic): array
