@@ -17,7 +17,7 @@
     <div class="container comic">
         <div class="row mt-3">
             <div class="col-xs-12 col-sm-12 col-md-2">
-                <img src="{{ character.path }}" class="img-fluid" alt="{{ character.name }}">
+                <img src="{{ character.sourcePath }}" class="img-fluid" alt="{{ character.name }}">
             </div>
             <div class="col-xs-12 col-sm-12 col-md-4">
                 <h1>{{ character.name }}</h1>
@@ -36,11 +36,9 @@
                     {% for comic in character.featuredIn %}
                         <div class="col-6">
                             <div class="card">
-                                {% if comic.panels|length >= 1 %}
-                                    <a href="{{ path('comic_item', {id: comic.id}) }}"
-                                       style="background: url({{ comic.panels[0].path }}) top center; display: block; height: 200px;">
-                                    </a>
-                                {% endif %}
+                                <a href="{{ path('comic_item', {id: comic.id}) }}"
+                                   style="background: url({{ comic.thumbnailPath }}) top center; display: block; height: 200px;">
+                                </a>
                                 <div class="card-body">
                                     <h5 class="card-title">{{ comic.title }}</h5>
                                     <p class="card-text">{{ comic.description }}</p>

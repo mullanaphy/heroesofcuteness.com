@@ -4,5 +4,5 @@ namespace App;
 
 class Config
 {
-    public const MEDIA_DIRECTORY = 'upload/media';
+    public const MEDIA_DIRECTORY = 'media';
 }
