@@ -30,13 +30,13 @@ class CharacterAdmin extends AbstractAdmin
 
         $form
             ->with('Credentials', ['class' => 'col-md-3'])
-            ->add('name', TextType::class, ['required' => false])
+            ->add('name', TextType::class)
             ->add('nickname', TextType::class, ['required' => false])
-            ->add('age', NumberType::class, ['required' => false])
+            ->add('age', NumberType::class)
             ->end()
             ->with('About', ['class' => 'col-md-6'])
             ->add('file', FileType::class, $fileOptions)
-            ->add('biography', TextareaType::class, ['required' => false, 'attr' => ['rows' => 10]])
+            ->add('biography', TextareaType::class, ['attr' => ['rows' => 10]])
             ->add('raw', CheckboxType::class, ['required' => false, 'label' => 'Allow raw HTML'])
             ->end()
             ->with('Meta', ['class' => 'col-md-3'])

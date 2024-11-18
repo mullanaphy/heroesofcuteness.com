@@ -30,12 +30,11 @@
                 </div>
                 <div class="row">
                     {% for comic in character.featuredIn %}
-                        {% set panel = comic.panels[0] %}
                         <div class="col-6">
                             <div class="card">
-                                {% if panel.path %}
+                                {% if comic.panels|length >= 1 %}
                                     <a href="{{ path('comic_item', {id: comic.id}) }}"
-                                       style="background: url({{ panel.path }}) center center; display: block; height: 100px;">
+                                       style="background: url({{ comic.panels[0].path }}) center center; display: block; height: 100px;">
                                     </a>
                                 {% endif %}
                                 <div class="card-body">
@@ -45,6 +44,10 @@
                                        class="btn btn-sm btn-success">View Comic</a>
                                 </div>
                             </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <em>This character has not been featured in any comics yet.</em>
                         </div>
                     {% endfor %}
                 </div>

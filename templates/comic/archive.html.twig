@@ -9,12 +9,11 @@
         </div>
         <div class="row mt-3">
             {% for comic in collection %}
-                {% set panel = comic.panels[0] %}
                 <div class="col-xs-12 col-md-3">
                     <div class="card">
-                        {% if panel %}
+                        {% if comic.panels|length >= 1 %}
                             <a href="{{ path('comic_item', {id: comic.id}) }}"
-                               style="background: url({{ panel.path }}) top left; display: block; height: 200px;">
+                               style="background: url({{ comic.panels[0].path }}) top left; display: block; height: 200px;">
                             </a>
                         {% endif %}
                         <div class="card-body">
