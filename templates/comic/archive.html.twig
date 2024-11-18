@@ -5,15 +5,12 @@
 {% block body %}
     <div class="container">
         <div class="row mt-3">
-            {{ block('comic_archive_pagination') }}
-        </div>
-        <div class="row mt-3">
             {% for comic in collection %}
                 <div class="col-xs-12 col-md-3">
                     <div class="card">
                         {% if comic.panels|length >= 1 %}
                             <a href="{{ path('comic_item', {id: comic.id}) }}"
-                               style="background: url({{ comic.panels[0].path }}) top left; display: block; height: 200px;">
+                               style="background: url({{ comic.thumbnailPath }}) top left; display: block; height: 200px;">
                             </a>
                         {% endif %}
                         <div class="card-body">
@@ -28,9 +25,7 @@
                 No results found
             {% endfor %}
         </div>
-        <div class="row mt-3">
-            {{ block('comic_archive_pagination') }}
-        </div>
+        {{ block('comic_archive_pagination') }}
         <div class="row mt-3 d-block d-md-none">
             <form class="input-group right" role="search" aria-label="Search" method="GET"
                   action="{{ path('search') }}">
@@ -43,36 +38,30 @@
 {% endblock %}
 
 {% block comic_archive_pagination %}
-    <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Pagination and search">
-        <div class="btn-group" role="pagination" aria-label="Pagination">
-            {% if pageId > 1 %}
-                <a type="button" class="btn btn-warning"
-                   href="{{ path(page.url, page.parameters|merge({pageId: pageId - 1, limit: limit})) }}">&laquo;</a>
-            {% else %}
-                <button type="button" class="btn btn-warning disabled">&laquo;</button>
-            {% endif %}
-            {% for neighbor in neighbors %}
-                {% if neighbor != pageId %}
+    <div class="row mt-3 text-center">
+        <div class="col">
+            <div class="btn-group" role="pagination" aria-label="Pagination">
+                {% if pageId > 1 %}
                     <a type="button" class="btn btn-warning"
-                       href="{{ path(page.url, page.parameters|merge({pageId: neighbor, limit: limit})) }}">{{ neighbor }}</a>
+                       href="{{ path(page.url, page.parameters|merge({pageId: pageId - 1, limit: limit})) }}">&laquo;</a>
                 {% else %}
-                    <button type="button" class="btn btn-warning disabled">{{ neighbor }}</button>
+                    <button type="button" class="btn btn-warning disabled">&laquo;</button>
                 {% endif %}
-            {% endfor %}
-            {% if pageId < pages %}
-                <a type="button" class="btn btn-warning"
-                   href="{{ path(page.url, page.parameters|merge({pageId: pageId +1, limit: limit})) }}">&raquo;</a>
-            {% else %}
-                <button type="button" class="btn btn-warning disabled">&raquo;</button>
-            {% endif %}
-        </div>
-        <div class="d-none d-md-inline">
-            <form class="input-group right" role="search" aria-label="Search" method="GET"
-                  action="{{ path('search') }}">
-                <input type="text" class="form-control" name="q" placeholder="Search" aria-label="Search"
-                       {% if page.parameters and page.parameters.q %}value="{{ page.parameters.q }}"{% endif %}>
-                <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
-            </form>
+                {% for neighbor in neighbors %}
+                    {% if neighbor != pageId %}
+                        <a type="button" class="btn btn-warning"
+                           href="{{ path(page.url, page.parameters|merge({pageId: neighbor, limit: limit})) }}">{{ neighbor }}</a>
+                    {% else %}
+                        <button type="button" class="btn btn-warning disabled">{{ neighbor }}</button>
+                    {% endif %}
+                {% endfor %}
+                {% if pageId < pages %}
+                    <a type="button" class="btn btn-warning"
+                       href="{{ path(page.url, page.parameters|merge({pageId: pageId +1, limit: limit})) }}">&raquo;</a>
+                {% else %}
+                    <button type="button" class="btn btn-warning disabled">&raquo;</button>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}

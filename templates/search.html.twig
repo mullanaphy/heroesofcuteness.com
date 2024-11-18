@@ -5,8 +5,10 @@
 {% block body %}
     <div class="container">
         <div class="row mt-3">
-            <h1>{{ page.title|raw }}:</h1>
-            <hr>
+            <div class="col">
+                <h1>{{ page.title|raw }}:</h1>
+                <hr>
+            </div>
         </div>
         <div class="row">
             {% for item in collection %}
@@ -27,7 +29,9 @@
                     </div>
                 </div>
             {% else %}
-                No results found
+                <div class="col">
+                    <div class="alert alert-warning"><em>No results found</em></div>
+                </div>
             {% endfor %}
         </div>
         {{ block('search_pagination') }}
