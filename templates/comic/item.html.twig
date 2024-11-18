@@ -16,20 +16,11 @@
 {% block body %}
     <div class="container comic">
         <div class="row mt-3">
-            <div class="col">
-                {{ block('comic_pagination') }}
-            </div>
-        </div>
-        <div class="row mt-3">
-            {% for panel in panels %}
-                <img name="comic" src="{{ panel.path }}" alt="{{ panel.alt }}"/>
+            {% for panel in comic.panels %}
+                <img name="comic" src="{{ panel.sourcePath }}" alt="{{ panel.alt }}"/>
             {% endfor %}
         </div>
-        <div class="row mt-3">
-            <div class="col">
-                {{ block('comic_pagination') }}
-            </div>
-        </div>
+        {{ block('comic_pagination') }}
         <div class="row mt-3">
             <div class="col-xs-12 col-sm-12 col-md-6">
                 <h1>{{ comic.title }}</h1>
@@ -52,7 +43,7 @@
                         <div class="col-6">
                             <div class="card">
                                 <a href="{{ path('character_item', {id: character.id}) }}"
-                                   style="background: url({{ character.path }}) top center; display: block; height: 200px;">
+                                   style="background: url({{ character.thumbnailPath }}) top center; display: block; height: 200px;">
                                 </a>
                                 <div class="card-body">
                                     <h5 class="card-title">{{ character.name }}</h5>
@@ -72,68 +63,54 @@
                 </div>
             </div>
         </div>
-        <div class="row d-block d-md-none mt-3">
-            <div class="col">
-                <form class="input-group right" role="search" aria-label="Search" method="GET"
-                      action="{{ path('search') }}">
-                    <input type="text" class="form-control w-50" name="q" placeholder="Search" aria-label="Search">
-                    <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
-                </form>
-            </div>
-        </div>
     </div>
 {% endblock %}
 
 {% block comic_pagination %}
-    <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Pagination and search">
-        <div class="btn-group" role="pagination" aria-label="Pagination">
-            {% if (previous_comic) %}
-                <a type="button" class="btn btn-warning"
-                   href="{{ path('comic_item', {id: header_navigation.first}) }}">
-                    <span class="d-none d-md-inline">First</span>
-                    <span class="d-inline d-md-none">&laquo;&laquo;</span>
-                </a>
-                <a type="button" class="btn btn-warning" href="{{ path('comic_item', {id: previous_comic}) }}">
-                    <span class="d-none d-md-inline">Previous</span>
-                    <span class="d-inline d-md-none">&laquo;</span>
-                </a>
-            {% else %}
-                <button type="button" class="btn btn-warning disabled">
-                    <span class="d-none d-md-inline">First</span>
-                    <span class="d-inline d-md-none">&laquo;&laquo;</span>
-                </button>
-                <button type="button" class="btn btn-warning disabled">
-                    <span class="d-none d-md-inline">Previous</span>
-                    <span class="d-inline d-md-none">&laquo;</span>
-                </button>
-            {% endif %}
-            {% if next_comic %}
-                <a type="button" class="btn btn-warning" href="{{ path('comic_item', {id: next_comic}) }}">
-                    <span class="d-none d-md-inline">Next</span>
-                    <span class="d-inline d-md-none">&raquo;</span>
-                </a>
-                <a type="button" class="btn btn-warning"
-                   href="{{ path('comic_item', {id: header_navigation.current}) }}">
-                    <span class="d-none d-md-inline">Current</span>
-                    <span class="d-inline d-md-none">&raquo;&raquo;</span>
-                </a>
-            {% else %}
-                <button type="button" class="btn btn-warning disabled">
-                    <span class="d-none d-md-inline">Next</span>
-                    <span class="d-inline d-md-none">&raquo;</span>
-                </button>
-                <button type="button" class="btn btn-warning disabled">
-                    <span class="d-none d-md-inline">Current</span>
-                    <span class="d-inline d-md-none">&raquo;&raquo;</span>
-                </button>
-            {% endif %}
-        </div>
-        <div class="d-none d-md-inline">
-            <form class="input-group right" role="search" aria-label="Search" method="GET"
-                  action="{{ path('search') }}">
-                <input type="text" class="form-control" name="q" placeholder="Search" aria-label="Search">
-                <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
-            </form>
+    <div class="row mt-3 text-center">
+        <div class="col">
+            <div class="btn-group" role="pagination" aria-label="Pagination">
+                {% if (previous_comic) %}
+                    <a type="button" class="btn btn-warning"
+                       href="{{ path('comic_item', {id: header_navigation.first}) }}">
+                        <span class="d-none d-md-inline">First</span>
+                        <span class="d-inline d-md-none">&laquo;&laquo;</span>
+                    </a>
+                    <a type="button" class="btn btn-warning" href="{{ path('comic_item', {id: previous_comic}) }}">
+                        <span class="d-none d-md-inline">Previous</span>
+                        <span class="d-inline d-md-none">&laquo;</span>
+                    </a>
+                {% else %}
+                    <button type="button" class="btn btn-warning disabled">
+                        <span class="d-none d-md-inline">First</span>
+                        <span class="d-inline d-md-none">&laquo;&laquo;</span>
+                    </button>
+                    <button type="button" class="btn btn-warning disabled">
+                        <span class="d-none d-md-inline">Previous</span>
+                        <span class="d-inline d-md-none">&laquo;</span>
+                    </button>
+                {% endif %}
+                {% if next_comic %}
+                    <a type="button" class="btn btn-warning" href="{{ path('comic_item', {id: next_comic}) }}">
+                        <span class="d-none d-md-inline">Next</span>
+                        <span class="d-inline d-md-none">&raquo;</span>
+                    </a>
+                    <a type="button" class="btn btn-warning"
+                       href="{{ path('comic_item', {id: header_navigation.current}) }}">
+                        <span class="d-none d-md-inline">Current</span>
+                        <span class="d-inline d-md-none">&raquo;&raquo;</span>
+                    </a>
+                {% else %}
+                    <button type="button" class="btn btn-warning disabled">
+                        <span class="d-none d-md-inline">Next</span>
+                        <span class="d-inline d-md-none">&raquo;</span>
+                    </button>
+                    <button type="button" class="btn btn-warning disabled">
+                        <span class="d-none d-md-inline">Current</span>
+                        <span class="d-inline d-md-none">&raquo;&raquo;</span>
+                    </button>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}

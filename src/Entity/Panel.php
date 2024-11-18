@@ -2,19 +2,19 @@
 
 namespace App\Entity;
 
+use App\Config;
 use App\Repository\PanelRepository;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: PanelRepository::class)]
 class Panel
 {
-    const UPLOAD_DIRECTORY = 'media/comic/';
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -109,47 +109,16 @@ class Panel
         return $this->source;
     }
 
-    public function getPath(): ?string
+    public function getSourcePath(): ?string
     {
-        return $this->getId()
-            ? DIRECTORY_SEPARATOR . $this->getDirectory() . DIRECTORY_SEPARATOR . $this->getSource()
+        return $this->id && $this->source
+            ? DIRECTORY_SEPARATOR . Config::MEDIA_DIRECTORY . DIRECTORY_SEPARATOR . $this->source
             : null;
-    }
-
-    public function getDirectory(): ?string
-    {
-        return self::UPLOAD_DIRECTORY . $this->getComic()->getId();
-    }
-
-    #[ORM\PreUpdate]
-    #[ORM\PrePersist]
-    public function upload(): void
-    {
-        if (null === $this->getFile()) {
-            return;
-        }
-
-        $this->file->move(
-            $this->getDirectory(),
-            $this->file->getClientOriginalName()
-        );
-
-        $this->setSource($this->file->getClientOriginalName());
-        $this->setFile(null);
     }
 
     public function getTitle(): string
     {
         return implode(' > ', [($this->getComic() ?? new Comic())->getTitle(), 'Panel #' . $this->getSort()]);
-    }
-
-    public function toArray(): array
-    {
-        return [
-            'alt' => $this->alt,
-            'source' => $this->source,
-            'path' => $this->getPath(),
-        ];
     }
 
     public function __toString(): string
@@ -204,5 +173,23 @@ class Panel
     public function refreshUpdated(): void
     {
         $this->setUpdated(new DateTime());
+    }
+
+    #[ORM\PreUpdate]
+    #[ORM\PrePersist]
+    public function upload(): void
+    {
+        if (null === $this->getFile()) {
+            return;
+        }
+
+        $fileName = 'p-' . Uuid::v7()->toBase58() . '.' . $this->file->guessExtension();
+        $this->file->move(
+            Config::MEDIA_DIRECTORY,
+            $fileName
+        );
+
+        $this->setSource($fileName);
+        $this->setFile(null);
     }
 }

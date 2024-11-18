@@ -16,6 +16,19 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+    {% if google_tag_manager_id %}
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_tag_manager_id }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+
+            gtag('js', new Date());
+            gtag('config', '{{ google_tag_manager_id }}');
+        </script>
+    {% endif %}
 </head>
 <body>
 <div class="container shadow-lg">
@@ -42,11 +55,21 @@
 {% block body %}
 {% endblock %}
 {% block footer %}
-    <div class="container mt-3">
-        <div class="row">
-            <hr>
-            <p>By <a href="https://initials.kim">Keira</a> &amp; <a
-                        href="https://john.mu">John</a> | &copy; 2024 All Rights Reserved</p>
+    <div class="container">
+        <div class="row pb-3">
+            <div class="col-xs-12 col-sm-12 col-md-9 mt-3">
+                <hr>
+                By <a href="https://initials.kim">Keira</a> &amp; <a
+                        href="https://john.mu">John</a> | &copy; 2024 All Rights Reserved
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-3 mt-3">
+                <form class="input-group right" role="search" aria-label="Search" method="GET"
+                      action="{{ path('search') }}">
+                    <input type="text" class="form-control w-50" name="q" placeholder="Search" aria-label="Search"
+                           {% if page is defined and page.parameters and page.parameters.q %}value="{{ page.parameters.q }}"{% endif %}>
+                    <button type="submit" class="btn btn-warning"><span class="bi bi-search"></span></button>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Config;
 use App\Repository\ComicRepository;
 use DateTime;
 use DateTimeImmutable;
@@ -12,6 +13,8 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Order;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints\Unique;
 
 #[ORM\Entity(repositoryClass: ComicRepository::class)]
@@ -60,6 +63,11 @@ class Comic
      */
     #[ORM\ManyToMany(targetEntity: Character::class, mappedBy: 'comics')]
     private Collection $characters;
+
+    #[ORM\Column(length: 255)]
+    private ?string $thumbnail = null;
+
+    private ?UploadedFile $thumbnailFile = null;
 
     public function __construct()
     {
@@ -179,6 +187,37 @@ class Comic
             ->matching(Criteria::create()->orderBy(['id' => Order::Descending])->setMaxResults(16));
     }
 
+    public function getThumbnail(): ?string
+    {
+        return $this->thumbnail;
+    }
+
+    public function setThumbnail(string $thumbnail): static
+    {
+        $this->thumbnail = $thumbnail;
+
+        return $this;
+    }
+
+    public function getThumbnailFile(): ?UploadedFile
+    {
+        return $this->thumbnailFile;
+    }
+
+    public function setThumbnailFile(?UploadedFile $file): static
+    {
+        $this->thumbnailFile = $file;
+
+        return $this;
+    }
+
+    public function getThumbnailPath(): ?string
+    {
+        return $this->id && $this->thumbnail
+            ? DIRECTORY_SEPARATOR . Config::MEDIA_DIRECTORY . DIRECTORY_SEPARATOR . $this->getThumbnail()
+            : null;
+    }
+
     public function __toString(): string
     {
         return $this->title ?? 'Untitled Comic';
@@ -258,5 +297,23 @@ class Comic
     public function refreshUpdated(): void
     {
         $this->setUpdated(new DateTime());
+    }
+
+    #[ORM\PreUpdate]
+    #[ORM\PrePersist]
+    public function upload(): void
+    {
+        if (null === $this->thumbnailFile) {
+            return;
+        }
+
+        $fileName = 't-' . Uuid::v7()->toBase58() . '.' . $this->thumbnailFile->guessExtension();
+        $this->thumbnailFile->move(
+            Config::MEDIA_DIRECTORY,
+            $fileName
+        );
+
+        $this->setThumbnail($fileName);
+        $this->setThumbnailFile(null);
     }
 }

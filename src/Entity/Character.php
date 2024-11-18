@@ -2,8 +2,8 @@
 
 namespace App\Entity;
 
+use App\Config;
 use App\Repository\CharacterRepository;
-use App\Repository\SearchRepository;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -12,16 +12,14 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Order;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: CharacterRepository::class)]
 #[ORM\Table(name: '`character`')]
 class Character
 {
-    const UPLOAD_DIRECTORY = 'media/character';
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -45,7 +43,8 @@ class Character
     #[ORM\Column(length: 255)]
     private ?string $source = null;
 
-    private ?UploadedFile $file = null;
+    private ?UploadedFile $sourceFile = null;
+    private ?UploadedFile $thumbnailFile = null;
 
     #[ORM\Column(nullable: true)]
     private ?bool $raw = null;
@@ -61,6 +60,9 @@ class Character
 
     #[ORM\Column(length: 128)]
     private ?string $description = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $thumbnail = null;
 
     public function __construct()
     {
@@ -144,44 +146,54 @@ class Character
         return $this;
     }
 
-    public function getFile(): ?UploadedFile
+    public function getSourceFile(): ?UploadedFile
     {
-        return $this->file;
+        return $this->sourceFile;
     }
 
-    public function setFile(?UploadedFile $file): static
+    public function setSourceFile(?UploadedFile $file): static
     {
-        $this->file = $file;
+        $this->sourceFile = $file;
 
         return $this;
     }
 
-    public function getPath(): ?string
+    public function getSourcePath(): ?string
     {
-        return $this->getId()
-            ? DIRECTORY_SEPARATOR . $this->getDirectory() . DIRECTORY_SEPARATOR . $this->getSource()
+        return $this->id && $this->source
+            ? DIRECTORY_SEPARATOR . Config::MEDIA_DIRECTORY . DIRECTORY_SEPARATOR . $this->source
             : null;
     }
 
-    public function getDirectory(): string
+    public function getThumbnail(): ?string
     {
-        return self::UPLOAD_DIRECTORY;
+        return $this->thumbnail;
     }
 
-    #[ORM\PreUpdate]
-    #[ORM\PrePersist]
-    public function upload(): void
+    public function setThumbnail(string $thumbnail): static
     {
-        if (null === $this->file) {
-            return;
-        }
+        $this->thumbnail = $thumbnail;
 
-        $this->file->move(
-            $this->getDirectory(),
-            $this->file->getClientOriginalName()
-        );
+        return $this;
+    }
 
-        $this->setSource($this->file->getClientOriginalName());
+    public function getThumbnailFile(): ?UploadedFile
+    {
+        return $this->thumbnailFile;
+    }
+
+    public function setThumbnailFile(?UploadedFile $file): static
+    {
+        $this->thumbnailFile = $file;
+
+        return $this;
+    }
+
+    public function getThumbnailPath(): ?string
+    {
+        return $this->id && $this->thumbnail
+            ? DIRECTORY_SEPARATOR . Config::MEDIA_DIRECTORY . DIRECTORY_SEPARATOR . $this->thumbnail
+            : null;
     }
 
     public function isRaw(): ?bool
@@ -204,6 +216,18 @@ class Character
     public function setNickname(?string $nickname): static
     {
         $this->nickname = $nickname;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }
@@ -257,15 +281,34 @@ class Character
         $this->setUpdated(new DateTime());
     }
 
-    public function getDescription(): ?string
+    #[ORM\PreUpdate]
+    #[ORM\PrePersist]
+    public function upload(): void
     {
-        return $this->description;
+        $hash = Uuid::v7()->toBase32();
+        $sourceFileName = $this->move($this->sourceFile, $hash);
+        if ($sourceFileName) {
+            $this->setSource($sourceFileName);
+        }
+
+        $thumbnailFileName = $this->move($this->thumbnailFile, 't-' . $hash);
+        if ($thumbnailFileName) {
+            $this->setThumbnail($thumbnailFileName);
+        }
     }
 
-    public function setDescription(string $description): static
+    private function move(?UploadedFile $file, $hash): ?string
     {
-        $this->description = $description;
+        if (null === $file) {
+            return null;
+        }
 
-        return $this;
+        $fileName = $hash . '.' . $file->guessExtension();
+        $file->move(
+            Config::MEDIA_DIRECTORY,
+            $fileName
+        );
+
+        return $fileName;
     }
 }

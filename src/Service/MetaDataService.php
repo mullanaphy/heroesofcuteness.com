@@ -4,10 +4,9 @@ namespace App\Service;
 
 use App\Entity\Character;
 use App\Entity\Comic;
-use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
-class MetaData
+class MetaDataService
 {
     public static function paginator(Paginator $paginator = null, ?int $pageId = 1, ?int $limit = 8, $neighborCount = 2): array
     {
@@ -48,40 +47,38 @@ class MetaData
             'pages' => $pages,
             'limit' => $limit,
             'total' => $total,
-            'neighbors' => $neighbors
+            'neighbors' => $neighbors,
         ];
     }
 
-    public static function ldJson(Character|Comic $entity, string $canonicalUrl, ?string $image): array
+    public static function ldJson(Character|Comic $entity, string $canonicalUrl): array
     {
-        $metaData = [
+        return [
             '@context' => 'http://schema.org',
             '@type' => 'Article',
             'mainEntityOfPage' => [
                 '@type' => 'WebPage',
-                '@id' => $canonicalUrl
+                '@id' => $canonicalUrl,
             ],
             'author' => [
                 [
                     '@type' => 'Person',
                     'url' => 'https://john.mu',
-                    'name' => 'John Mullanaphy'
+                    'name' => 'John Mullanaphy',
                 ],
                 [
                     '@type' => 'Person',
                     'url' => 'https://initials.kim',
-                    'name' => 'Keira Mullanaphy'
+                    'name' => 'Keira Mullanaphy',
                 ],
             ],
             'publisher' => [
                 '@type' => 'Organization',
                 'name' => 'Heroes of Cuteness',
             ],
-            'image' => $image,
+            'image' => $entity->getThumbnailPath(),
             'datePublished' => $entity->getCreated()->format('Y-m-d\TH:i:s\Z'),
-            'dateModified' => $entity->getUpdated()->format('Y-m-d\TH:i:s\Z')
+            'dateModified' => $entity->getUpdated()->format('Y-m-d\TH:i:s\Z'),
         ];
-
-        return $metaData;
     }
 }

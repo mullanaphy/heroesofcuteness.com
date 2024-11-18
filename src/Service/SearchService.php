@@ -23,7 +23,7 @@ readonly class SearchService
     public function search(?string $search, ?int $pageId, ?int $limit): ?array
     {
         $search = strip_tags($search);
-        $data = MetaData::paginator(
+        $data = MetaDataService::paginator(
             $this->searchRepository->findByQuery($search),
             $pageId,
             $limit,
@@ -41,10 +41,10 @@ readonly class SearchService
                 'url' => 'search',
                 'title' => 'Search <em>(' . $search . ')</em>',
                 'parameters' => [
-                    'q' => $search
+                    'q' => $search,
                 ],
             ],
-            ...$data
+            ...$data,
         ];
     }
 
@@ -65,7 +65,7 @@ readonly class SearchService
         return [
             'type' => 'character',
             'id' => $character->getId(),
-            'image' => $character->getPath(),
+            'image' => $character->getThumbnailPath(),
             'title' => $character->getName(),
             'description' => $character->getDescription(),
         ];
@@ -76,16 +76,10 @@ readonly class SearchService
         /* @var Comic $comic */
         $comic = $this->comicRepository->findOneBy(['id' => $id]);
 
-        $panels = $comic->getPanels();
-        $image = null;
-        if (count($panels)) {
-            $image = $panels[0]->getPath();
-        }
-
         return [
             'type' => 'comic',
             'id' => $comic->getId(),
-            'image' => $image,
+            'image' => $comic->getThumbnailPath(),
             'title' => $comic->getTitle(),
             'description' => $comic->getDescription(),
         ];

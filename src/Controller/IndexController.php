@@ -2,9 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Search;
 use App\Repository\ComicRepository;
-use App\Service\MetaData;
 use App\Service\SearchService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

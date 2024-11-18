@@ -2,6 +2,7 @@
 
 namespace App\Admin;
 
+use App\Entity\Comic;
 use App\Entity\Character;
 use App\Entity\User;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
@@ -10,6 +11,7 @@ use Sonata\AdminBundle\Form\FormMapper;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -25,6 +27,17 @@ class ComicAdmin extends AbstractAdmin
 
     protected function configureFormFields(FormMapper $form): void
     {
+        /** @var Comic $comic */
+        $comic = $this->getSubject();
+
+        $thumbnailOptions = ['required' => false];
+        if ($comic && ($path = $comic->getThumbnailPath())) {
+            $thumbnailOptions['help'] = '<img src="' . $path . '" class="img-fluid" style="width:100%"/>';
+            $thumbnailOptions['help_html'] = true;
+        } else {
+            $thumbnailOptions['required'] = true;
+        }
+
         $form
             ->with('Content', ['class' => 'col-md-9'])
             ->add('title', TextType::class)
@@ -33,6 +46,7 @@ class ComicAdmin extends AbstractAdmin
             ->end()
             ->with('Meta', ['class' => 'col-md-3'])
             ->add('author', EntityType::class, ['class' => User::class, 'required' => true, 'empty_data' => $this->tokenStorage->getToken()->getUser(), 'choice_label' => 'username'])
+            ->add('thumbnailFile', FileType::class, $thumbnailOptions)
             ->add('description', TextareaType::class, ['attr' => ['rows' => 5, 'maxlength' => 128]])
             ->add('characters', EntityType::class, [
                 'class' => Character::class,
@@ -55,7 +69,7 @@ class ComicAdmin extends AbstractAdmin
         $list
             ->addIdentifier('id', null, [
                 'route' => [
-                    'name' => 'edit'
+                    'name' => 'edit',
                 ],
                 'row_align' => 'left',
                 'header_style' => 'width: 5%',
@@ -73,5 +87,15 @@ class ComicAdmin extends AbstractAdmin
             ->add('updated', null, [
                 'header_style' => 'width: 15%',
             ]);
+    }
+
+    protected function prePersist(object $object): void
+    {
+        $object->refreshCreated();
+    }
+
+    protected function preUpdate(object $object): void
+    {
+        $object->refreshUpdated();
     }
 }

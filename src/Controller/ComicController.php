@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\Comic;
 use App\Entity\Panel;
 use App\Repository\ComicRepository;
-use App\Service\MetaData;
+use App\Service\MetaDataService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +23,7 @@ class ComicController extends AbstractController
                 'title' => 'Comic Archive',
                 'parameters' => [],
             ],
-            ...MetaData::paginator(
+            ...MetaDataService::paginator(
                 $repository->all(),
                 $request->query->getInt('pageId'),
                 $request->query->getInt('limit'),
@@ -36,15 +36,6 @@ class ComicController extends AbstractController
         /* @var Comic $comic */
         $comic = $repository->findOneBy(['id' => $id]);
 
-        $metaImage = null;
-        $panels = [];
-        foreach ($comic->getPanels() as $panel) {
-            /* @var Panel $panel */
-            if ($metaImage === null) {
-                $metaImage = $request->getSchemeAndHttpHost() . $panel->getPath();
-            }
-            $panels[] = $panel->toArray();
-        }
 
         $canonicalUrl = $this->generateUrl('comic_item', ['id' => $comic->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
         $nextComic = $repository->findNextComic($comic);
@@ -53,8 +44,7 @@ class ComicController extends AbstractController
         return $this->render('comic/item.html.twig', [
             'comic' => $comic,
             'canonical_url' => $canonicalUrl,
-            'panels' => $panels,
-            'meta' => MetaData::ldJson($comic, $canonicalUrl, $metaImage),
+            'meta' => MetaDataService::ldJson($comic, $canonicalUrl),
             'next_comic' => $nextComic ? $nextComic->getId() : null,
             'previous_comic' => $previousComic ? $previousComic->getId() : null
         ]);

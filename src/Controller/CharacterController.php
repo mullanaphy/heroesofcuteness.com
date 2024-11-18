@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Character;
 use App\Repository\CharacterRepository;
-use App\Service\MetaData;
+use App\Service\MetaDataService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +22,7 @@ class CharacterController extends AbstractController
                 'title' => 'Character Archive',
                 'parameters' => [],
             ],
-            ...MetaData::paginator(
+            ...MetaDataService::paginator(
                 $repository->all(),
                 $request->query->getInt('pageId'),
                 $request->query->getInt('limit'),
@@ -39,7 +39,7 @@ class CharacterController extends AbstractController
         return $this->render('character/item.html.twig', [
             'character' => $character,
             'canonical_url' => $canonicalUrl,
-            'meta' => MetaData::ldJson($character, $canonicalUrl, $request->getSchemeAndHttpHost() . $character->getPath()),
+            'meta' => MetaDataService::ldJson($character, $canonicalUrl),
         ]);
     }
 }

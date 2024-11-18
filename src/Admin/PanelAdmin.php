@@ -22,9 +22,11 @@ class PanelAdmin extends AbstractAdmin
         $panel = $this->getSubject();
 
         $fileOptions = ['required' => false];
-        if ($panel && ($path = $panel->getPath())) {
+        if ($panel && ($path = $panel->getSourcePath())) {
             $fileOptions['help'] = '<img src="' . $path . '" class="img-fluid" style="width:100%"/>';
             $fileOptions['help_html'] = true;
+        } else {
+            $fileOptions['required'] = true;
         }
 
         $form
@@ -46,7 +48,7 @@ class PanelAdmin extends AbstractAdmin
         $list
             ->addIdentifier('id', null, [
                 'route' => [
-                    'name' => 'edit'
+                    'name' => 'edit',
                 ],
                 'row_align' => 'left',
                 'header_style' => 'width: 5%',
