@@ -5,5 +5,5 @@ namespace App;
 class Config
 {
     public const MEDIA_DIRECTORY = 'media';
-    public const USE_FULLTEXT = true;
+    public const USE_FULLTEXT = false;
 }
