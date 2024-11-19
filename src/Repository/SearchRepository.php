@@ -21,7 +21,7 @@ class SearchRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('c')
             ->setParameter('m', implode('', [strtolower($get), '*']))
-            ->setParameter('l', implode('', [strtolower($get), '%']));
+            ->setParameter('l', implode('', ['%', strtolower($get), '%']));
 
         $queryBuilder
             ->addSelect('MATCH(c.content) AGAINST (:m IN BOOLEAN MODE) AS score')
