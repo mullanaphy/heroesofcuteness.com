@@ -15,9 +15,10 @@
                 {% set pathName = item.type ~ '_item' %}
                 <div class="col-xs-12 col-md-3">
                     <div class="card mt-3 text-bg-warning">
+                        <!-- Score: {{ (item.score)|format_percent_number({fraction_digit: 2}) }} -->
                         {% if item.image %}
                             <a href="{{ path(pathName, {id: item.id}) }}">
-                                <img src="{{ item.image }}" alt="{{ character.title }}"
+                                <img src="{{ item.image }}" alt="{{ item.title }}"
                                      class="card-img-top">
                             </a>
                         {% endif %}

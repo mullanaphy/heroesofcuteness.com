@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Config;
 use App\Entity\Search;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -19,10 +20,21 @@ class SearchRepository extends ServiceEntityRepository
 
     public function findByQuery(string $get): Paginator
     {
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->setParameter('q', implode('', ['%', strtolower($get), '%']));
+
+        if (Config::USE_FULLTEXT) {
+            $queryBuilder
+                ->addSelect('MATCH(c.content) AGAINST (:q IN BOOLEAN MODE) AS score')
+                ->andWhere('MATCH(c.content) AGAINST (:q IN BOOLEAN MODE) > 0.2');
+        } else {
+            $queryBuilder
+                ->addSelect('1 AS score')
+                ->andWhere('c.content LIKE :q');
+        }
+
         return new Paginator(
-            $this->createQueryBuilder('c')
-                ->andWhere('c.content LIKE :get')
-                ->setParameter('get', implode('', ['%', strtolower($get), '%'])),
+            $queryBuilder,
             fetchJoinCollection: true
         );
     }

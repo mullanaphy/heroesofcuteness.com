@@ -30,9 +30,8 @@ readonly class SearchService
         );
 
         $collection = [];
-        foreach ($data['collection'] as $item) {
-            /* @var Search $item */
-            $collection[] = $this->getEntityData($item);
+        foreach ($data['collection'] as $result) {
+            $collection[] = $this->getEntityData($result[0], $result['score']);
         }
         $data['collection'] = $collection;
 
@@ -48,13 +47,14 @@ readonly class SearchService
         ];
     }
 
-    private function getEntityData(Search $search): ?array
+    private function getEntityData(Search $search, ?float $score): array
     {
-        return match ($search->getEntity()) {
-            'Character' => $this->normalizeCharacter($search->getEntityId()),
-            'Comic' => $this->normalizeComic($search->getEntityId()),
-            default => null,
-        };
+        return ['score' => $score,
+            ...match ($search->getEntity()) {
+                'Character' => $this->normalizeCharacter($search->getEntityId()),
+                'Comic' => $this->normalizeComic($search->getEntityId()),
+                default => [],
+            }];
     }
 
     private function normalizeCharacter(int $id): ?array

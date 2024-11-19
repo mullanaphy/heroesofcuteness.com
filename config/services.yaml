@@ -45,3 +45,9 @@ services:
     class: App\Admin\SearchAdmin
     tags:
       - { name: sonata.admin, model_class: App\Entity\Search, manager_type: orm, label: Search }
+
+doctrine:
+    orm:
+      dql:
+        string_functions:
+          match: DoctrineExtensions\Query\Mysql\MatchAgainst

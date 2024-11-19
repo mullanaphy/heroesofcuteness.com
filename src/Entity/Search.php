@@ -31,6 +31,8 @@ class Search
     #[ORM\Column]
     private ?int $entity_id = null;
 
+    private ?int $score = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -117,5 +119,17 @@ class Search
         $this->entity_id = $entity_id;
 
         return $this;
+    }
+
+    public function setScore(?int $score): static
+    {
+        $this->score = $score;
+
+        return $this;
+    }
+
+    public function getScore(): ?int
+    {
+        return $this->score;
     }
 }
