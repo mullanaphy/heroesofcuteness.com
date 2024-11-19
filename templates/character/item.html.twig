@@ -35,9 +35,10 @@
                 <div class="row">
                     {% for comic in character.featuredIn %}
                         <div class="col-6">
-                            <div class="card">
-                                <a href="{{ path('comic_item', {id: comic.id}) }}"
-                                   style="background: url({{ comic.thumbnailPath }}) top center; display: block; height: 200px;">
+                            <div class="card bg-warning border-warning">
+                                <a href="{{ path('comic_item', {id: comic.id}) }}">
+                                    <img src="{{ comic.thumbnailPath }}" alt="{{ comic.title }}"
+                                         class="img-fluid">
                                 </a>
                                 <div class="card-body">
                                     <h5 class="card-title">{{ comic.title }}</h5>
