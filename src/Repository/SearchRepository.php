@@ -20,11 +20,12 @@ class SearchRepository extends ServiceEntityRepository
     public function findByQuery(string $get): Paginator
     {
         $queryBuilder = $this->createQueryBuilder('c')
-            ->setParameter('q', implode('', ['%', strtolower($get), '%']));
+            ->setParameter('m', implode('', [strtolower($get), '*']))
+            ->setParameter('l', implode('', [strtolower($get), '%']));
 
         $queryBuilder
-            ->addSelect('MATCH(c.content) AGAINST (:q IN BOOLEAN MODE) AS score')
-            ->orWhere('c.content LIKE :q')
+            ->addSelect('MATCH(c.content) AGAINST (:m IN BOOLEAN MODE) AS score')
+            ->orWhere('c.content LIKE :l')
             ->orderBy('score', 'DESC');
 
         return new Paginator(
