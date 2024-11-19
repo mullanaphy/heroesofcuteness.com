@@ -14,7 +14,7 @@
             {% for item in collection %}
                 {% set pathName = item.type ~ '_item' %}
                 <div class="col-xs-12 col-md-3">
-                    <div class="card mt-3 bg-warning border-warning">
+                    <div class="card mt-3 text-bg-warning">
                         {% if item.image %}
                             <a href="{{ path(pathName, {id: item.id}) }}">
                                 <img src="{{ item.image }}" alt="{{ character.title }}"

@@ -35,7 +35,7 @@
                 <div class="row">
                     {% for comic in character.featuredIn %}
                         <div class="col-6">
-                            <div class="card bg-warning border-warning">
+                            <div class="card text-bg-warning">
                                 <a href="{{ path('comic_item', {id: comic.id}) }}">
                                     <img src="{{ comic.thumbnailPath }}" alt="{{ comic.title }}"
                                          class="card-img-top">
