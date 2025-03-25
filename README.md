@@ -1,4 +1,4 @@
-[Heroes of Cuteness](http://www.heroesofcuteness.com/)
+[Heroes of Cuteness](http://www.heroesofcuteness.com)
 =============================================
 
 Here's the source code for the comic series, Heroes of Cuteness. I'm not sure how helpful this might be, especially
@@ -24,12 +24,12 @@ Submitting bugs and feature requests
 ------------------------------------
 
 Please send bugs to me via
-[GitHub](https://github.com/mullanaphy/heroes/issues)
+[GitHub](https://github.com/mullanaphy/heroesofcuteness.com/issues)
 
 Author
 ------
 
-John Mullanaphy - <hi@john.mu> - <https://john.mu/>
+John Mullanaphy - <hi@john.mu> - <https://john.mu>
 That's it for now...
 
 License
