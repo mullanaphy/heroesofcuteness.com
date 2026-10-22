@@ -77,7 +77,7 @@ class SearchListener
         foreach ($this->toSave as $pair) {
             /* @var Search $search */
             /* @var Comic|Character $entity */
-            list($search, $entity) = $pair;
+            [$search, $entity] = $pair;
 
             $this->entityManager->createNativeQuery($search->getEntityId() ? self::UPDATE : self::INSERT, new ResultSetMapping())
                 ->setParameters([
@@ -185,12 +185,16 @@ class SearchListener
     private static function cleanContent(array $content): string
     {
         return strtolower(
-            preg_replace('/[^A-Za-z0-9 ]/', '',
-                preg_replace('/[\t\r\n ]+/', ' ',
+            preg_replace(
+                '/[^A-Za-z0-9 ]/',
+                '',
+                preg_replace(
+                    '/[\t\r\n ]+/',
+                    ' ',
                     strip_tags(
-                        implode(' ', array_filter($content, function ($item) {
-                                return is_string($item) && $item;
-                            })
+                        implode(
+                            ' ',
+                            array_filter($content, fn($item): bool => is_string($item) && $item)
                         )
                     )
                 )

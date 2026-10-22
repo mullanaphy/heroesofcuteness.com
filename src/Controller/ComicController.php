@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Comic;
-use App\Entity\Panel;
 use App\Repository\ComicRepository;
 use App\Service\MetaDataService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,7 +35,6 @@ class ComicController extends AbstractController
         /* @var Comic $comic */
         $comic = $repository->findOneBy(['id' => $id]);
 
-
         $canonicalUrl = $this->generateUrl('comic_item', ['id' => $comic->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
         $nextComic = $repository->findNextComic($comic);
         $previousComic = $repository->findPreviousComic($comic);
@@ -46,7 +44,7 @@ class ComicController extends AbstractController
             'canonical_url' => $canonicalUrl,
             'meta' => MetaDataService::ldJson($comic, $canonicalUrl),
             'next_comic' => $nextComic ? $nextComic->getId() : null,
-            'previous_comic' => $previousComic ? $previousComic->getId() : null
+            'previous_comic' => $previousComic ? $previousComic->getId() : null,
         ]);
     }
 }

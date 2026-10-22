@@ -14,7 +14,10 @@ class IndexController extends AbstractController
     #[Route('/', name: 'index')]
     public function index(ComicRepository $repository): Response
     {
-        return $this->forward(implode('::', [ComicController::class, 'item']), ['id' => $repository->count()]);
+        return $this->forward(
+            implode('::', [ComicController::class, 'item']),
+            ['id' => $repository->count()]
+        );
     }
 
     #[Route('/about', name: 'about')]
@@ -31,6 +34,13 @@ class IndexController extends AbstractController
             return $this->redirectToRoute('index');
         }
 
-        return $this->render('search.html.twig', $service->search($q, $request->query->get('pageId'), $request->query->get('limit')));
+        return $this->render(
+            'search.html.twig',
+             $service->search(
+                $q,
+                $request->query->get('pageId'),
+                $request->query->get('limit')
+            )
+        );
     }
 }
